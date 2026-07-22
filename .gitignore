@@ -16,3 +16,6 @@ pnpm-debug.log*
 .mcp/
 .runtime/
 tmp/
+
+# TypeScript incremental build metadata (generated)
+*.tsbuildinfo
