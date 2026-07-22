@@ -1,0 +1,19 @@
+# Standalone compose for the admin web only.
+# If you want to integrate with the backend's compose, merge the `admin-web`
+# service into kiwoo_backend-main/docker-compose.yml and point it at the same
+# network as the kiwoo-backend service.
+version: "3.9"
+
+services:
+  admin-web:
+    build:
+      context: .
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:3000/}
+        VITE_ASSET_CODE: ${VITE_ASSET_CODE:-HTGe}
+        VITE_ENV_LABEL: ${VITE_ENV_LABEL:-production}
+    image: kiwoo/admin-web:latest
+    container_name: kiwoo-admin-web
+    ports:
+      - "8080:80"
+    restart: unless-stopped
