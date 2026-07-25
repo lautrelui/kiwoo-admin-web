@@ -40,6 +40,23 @@ import AnalyticsPage from "@/pages/ops/AnalyticsPage";
 // Sprint 13.9 Task 133 — Scenario Runner (Operations Center)
 import ScenarioRunner from "@/pages/ops/ScenarioRunner";
 import ScenarioRunDetail from "@/pages/ops/ScenarioRunDetail";
+// M4A-2 — Marketplace (Participant) surface. Participant-tenant only (Corp/LEH/merchant/LP). Every
+// route is additionally gated server-side by MARKETPLACE_PARTICIPANT_ENABLED (fail-closed while dark).
+import ParticipantOverview from "@/pages/marketplace/Overview";
+import ParticipantLiquidity from "@/pages/marketplace/Liquidity";
+import ParticipantOffers from "@/pages/marketplace/Offers";
+import ParticipantObligations from "@/pages/marketplace/Obligations";
+import ObligationDetail from "@/pages/marketplace/ObligationDetail";
+import ParticipantDisputes from "@/pages/marketplace/Disputes";
+import ParticipantEarnings from "@/pages/marketplace/Earnings";
+import ParticipantActivity from "@/pages/marketplace/Activity";
+
+const PARTICIPANT_ROLE_GUARD: ("PARTICIPANT" | "CORP" | "LEH" | "MERCHANT_PARTICIPANT")[] = [
+  "PARTICIPANT",
+  "CORP",
+  "LEH",
+  "MERCHANT_PARTICIPANT",
+];
 
 export function AppRoutes() {
   return (
@@ -322,6 +339,40 @@ export function AppRoutes() {
             <ScenarioRunDetail />
           </ProtectedRoute>
         }
+      />
+      {/* M4A-2 — Marketplace (Participant). Route-level roles gate the UX; the backend
+          `MARKETPLACE_PARTICIPANT_ENABLED` flag is the enforcement point (503 while dark). */}
+      <Route
+        path="/participant/marketplace"
+        element={<ProtectedRoute roles={PARTICIPANT_ROLE_GUARD}><ParticipantOverview /></ProtectedRoute>}
+      />
+      <Route
+        path="/participant/marketplace/liquidity"
+        element={<ProtectedRoute roles={PARTICIPANT_ROLE_GUARD}><ParticipantLiquidity /></ProtectedRoute>}
+      />
+      <Route
+        path="/participant/marketplace/offers"
+        element={<ProtectedRoute roles={PARTICIPANT_ROLE_GUARD}><ParticipantOffers /></ProtectedRoute>}
+      />
+      <Route
+        path="/participant/marketplace/obligations"
+        element={<ProtectedRoute roles={PARTICIPANT_ROLE_GUARD}><ParticipantObligations /></ProtectedRoute>}
+      />
+      <Route
+        path="/participant/marketplace/obligations/:ref"
+        element={<ProtectedRoute roles={PARTICIPANT_ROLE_GUARD}><ObligationDetail /></ProtectedRoute>}
+      />
+      <Route
+        path="/participant/marketplace/disputes"
+        element={<ProtectedRoute roles={PARTICIPANT_ROLE_GUARD}><ParticipantDisputes /></ProtectedRoute>}
+      />
+      <Route
+        path="/participant/marketplace/earnings"
+        element={<ProtectedRoute roles={PARTICIPANT_ROLE_GUARD}><ParticipantEarnings /></ProtectedRoute>}
+      />
+      <Route
+        path="/participant/marketplace/activity"
+        element={<ProtectedRoute roles={PARTICIPANT_ROLE_GUARD}><ParticipantActivity /></ProtectedRoute>}
       />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

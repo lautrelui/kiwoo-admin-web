@@ -1,4 +1,15 @@
-export type Role = "ADMIN" | "SUPER_ADMIN" | "TREASURY" | "COMPLIANCE" | "VIEWER" | string;
+export type Role =
+  | "ADMIN"
+  | "SUPER_ADMIN"
+  | "TREASURY"
+  | "COMPLIANCE"
+  | "VIEWER"
+  // M4A-2 · Marketplace participant tenancy (Corp/LEH/merchant/approved liquidity provider).
+  | "PARTICIPANT"
+  | "CORP"
+  | "LEH"
+  | "MERCHANT_PARTICIPANT"
+  | string;
 
 export interface AdminUser {
   id: number | string;

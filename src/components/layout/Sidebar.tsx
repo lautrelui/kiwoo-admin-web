@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
+import { OPERATOR_ROLES, PARTICIPANT_ROLES } from "@/lib/roles";
 import type { Role } from "@/types";
 
 interface NavItem {
@@ -9,6 +10,8 @@ interface NavItem {
   icon: string;
   roles?: Role[];
   section?: string;
+  /** Marketplace participant surface — shown ONLY to participant users. */
+  participant?: boolean;
 }
 
 const NAV: NavItem[] = [
@@ -44,12 +47,29 @@ const NAV: NavItem[] = [
   { label: "Templates", to: "/connect/templates", icon: "▤", section: "Communications" },
   { label: "Provider Health", to: "/connect/providers/health", icon: "◉", section: "Communications" },
   { label: "Status Watchdog", to: "/connect/watchdog", icon: "↺", section: "Communications" },
+  // M4A-2 — Marketplace (Participant): Corp/LEH/merchant/LP self-service. Participant-only; never
+  // shown to operators, and these users never see the operator/ops pages above.
+  { label: "Overview", to: "/participant/marketplace", icon: "◎", section: "Marketplace (Participant)", participant: true },
+  { label: "Liquidity", to: "/participant/marketplace/liquidity", icon: "≋", section: "Marketplace (Participant)", participant: true },
+  { label: "Offers", to: "/participant/marketplace/offers", icon: "◈", section: "Marketplace (Participant)", participant: true },
+  { label: "Obligations", to: "/participant/marketplace/obligations", icon: "⇄", section: "Marketplace (Participant)", participant: true },
+  { label: "Disputes", to: "/participant/marketplace/disputes", icon: "⚠", section: "Marketplace (Participant)", participant: true },
+  { label: "Earnings", to: "/participant/marketplace/earnings", icon: "₿", section: "Marketplace (Participant)", participant: true },
+  { label: "Activity", to: "/participant/marketplace/activity", icon: "▤", section: "Marketplace (Participant)", participant: true },
 ];
 
 export function Sidebar() {
   const { user, hasRole } = useAuth();
 
+  // Tenancy separation: a PURE participant (participant role, no operator role) sees ONLY the
+  // participant Marketplace section; everyone else sees the operator app WITHOUT that section.
+  const isParticipant = hasRole(...PARTICIPANT_ROLES);
+  const isOperator = hasRole(...OPERATOR_ROLES);
+  const pureParticipant = isParticipant && !isOperator;
+
   const items = NAV.filter((item) => {
+    if (item.participant) return isParticipant; // participant section only for participants
+    if (pureParticipant) return false; // hide operator/ops pages from pure participants
     if (!item.roles) return true;
     if (!user) return true; // show all if role unknown — backend still authorizes
     return hasRole(...item.roles);
