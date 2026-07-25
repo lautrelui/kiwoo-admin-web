@@ -193,3 +193,18 @@ adjudicate, gated by `MARKETPLACE_OPERATOR_ENABLED`). M4A-3 would add the operat
 (review queue, evidence-complete context, note, SETTLE/COMPENSATE adjudication with four-eyes where
 applicable) in the operator app — a **separate** authorization. It must NOT be a NOC dashboard (that's
 M4A-4) and must keep operator-only data (matching candidates, notes, ledger) off participant surfaces.
+
+---
+
+## 19. Deploy record (dark, TEST — 2026-07-25)
+
+- **Frontend:** admin commit `4433c41` on `feat/marketplace-m4a2-participant` (`lautrelui/kiwoo-admin-web`;
+  `main` kept clean at `2acfeb4`). Built on the TEST host → image `kiwoo-admin-web:m4a2-4433c41`
+  (manifest `sha256:cd07d8d913f59909d5026b56ba72daadaaa1bd815556fc78a30fa3e171164a87`); redeployed via
+  `docker compose up -d kiwoo-admin-web`. `admin.kiwoo.io` → 200; bundle `index-FTy1LFa1.js` contains the
+  M4A-2 literals. Rollback anchor: prev image `sha256:21f818fc…` + `backups/admin-{image,src}-pre-m4a2-20260725T193218Z.*`.
+- **Backend:** commit `309b7fc` (tag `v1.0.0-rc2-marketplace-m4a2`), CI run `30171763609` (test+chaos+build ✓),
+  immutable image `ghcr.io/lautrelui/kiwoo-backend@sha256:57e486200d60586de813b61fed9e9371faf818e6a9a48a77b83df2d450b8b191`
+  (prev/rollback `sha256:d54764d7…`). All marketplace + `LIQUIDITY_ENABLED` flags OFF; MonCash unchanged.
+- **Dark smoke:** admin 200; new participant read routes exist + guarded (401 unauth / 503 gated); MonCash
+  callback 403; marketplace rows 0; `JournalEntry=83` unchanged. No financial row or journal created.
