@@ -171,3 +171,20 @@ build the **NOC/operations dashboard** (fleet metrics, funnels, SLA analytics, p
 consuming those projections — a **separate** authorization. It must NOT include adjudication (that's this
 console) and must expose no operator-private notes or customer/participant PII. Also needs the public
 nginx `/operations/*` proxy route (noted since M4A ops backend).
+
+---
+
+## 21. Deploy record (dark, TEST — 2026-07-25)
+
+- **Frontend:** admin commit `f9786d1` on `feat/marketplace-m4a3-operator` (`lautrelui/kiwoo-admin-web`).
+  Built on host → image `kiwoo-admin-web:m4a3-f9786d1` (manifest
+  `sha256:e113ce076b0cec867d530e2706951f2259d3978c588750de99c6b9b43ac17a2a`); `docker compose up -d
+  kiwoo-admin-web`. `admin.kiwoo.io` → 200; bundle `index-lbwW1KCA.js` contains the operator-console
+  literals. Rollback: prev image `sha256:cd07d8d9…` + `backups/admin-{image,src}-pre-m4a3-20260726T002641Z.*`.
+- **Backend:** commit `8e43ca3` (tag `v1.0.0-rc2-marketplace-m4a3`), CI run `30181156752` (test+chaos 94/94+build ✓),
+  immutable image `ghcr.io/lautrelui/kiwoo-backend@sha256:90ef4f73fe7c66d3d4a9f18f817837e7a69113495dfc6c8397e6da8f0e2c33ea`
+  (prev/rollback `sha256:57e48620…`). Additive migration `20260725210000` applied (one pending only);
+  partial unique index present. All marketplace + `LIQUIDITY_ENABLED` flags OFF; MonCash unchanged.
+- **Dark smoke:** admin 200 + operator literals; backend health 200; operator routes exist + guarded
+  (401 unauth / 503 flag-off); MonCash callback 403; `MarketplaceAdjudicationProposal=0`, marketplace
+  rows 0, `JournalEntry=83` unchanged. No financial row or journal created.
