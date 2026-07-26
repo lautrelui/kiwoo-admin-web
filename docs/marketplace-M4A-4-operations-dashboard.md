@@ -105,3 +105,19 @@ to revert — read-only additions only).
 End-to-end visual/state validation across all four surfaces (wallet, participant, operator, dashboard),
 full accessibility audit, golden/Playwright coverage, and the flag-on canary rehearsal — a separate
 authorization after all M4A surfaces are built (they now are).
+
+---
+
+## 24. Deploy record (dark, TEST — 2026-07-26)
+
+- **Frontend:** admin commit `497d671` on `feat/marketplace-m4a4-ops-dashboard` (`lautrelui/kiwoo-admin-web`).
+  Built on host → image `kiwoo-admin-web:m4a4-497d671` (manifest
+  `sha256:cf17d5edebabca55d37476de8d134b6e5a4cf16d63055f367f85f8eb6c4df70d`); `docker compose up -d
+  kiwoo-admin-web`. `admin.kiwoo.io` → 200; bundle `index-C51z9KaI.js` has the Control Tower literals.
+  Rollback: prev image `sha256:e113ce07…` + `backups/admin-{image,src}-pre-m4a4-20260726T044717Z.*`.
+- **Backend:** commit `bcb1bf5` (tag `v1.0.0-rc2-marketplace-m4a4`), CI run `30188327603` (test+chaos 95/95+build ✓),
+  immutable image `ghcr.io/lautrelui/kiwoo-backend@sha256:af6de423f481f2aff7b0ab16b0583b1ee93ae0b2da1d9d2598923d634d8af230`
+  (prev/rollback `sha256:90ef4f73…`). NO migration. All marketplace + `LIQUIDITY_ENABLED` flags OFF; MonCash unchanged.
+- **Dark smoke:** admin 200 + Control Tower literals; backend health 200; new ops routes exist + guarded
+  (401 unauth / 503 flag-off); MonCash callback 403; `MarketplaceAdjudicationProposal=0`, marketplace rows 0,
+  `OutboundPayment=0`, `JournalEntry=83` unchanged. No financial row or journal created.
