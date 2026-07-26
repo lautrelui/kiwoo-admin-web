@@ -91,6 +91,7 @@ export default function CaseDetail() {
               <ParticipantContext c={c} />
               <Notes c={c} ref_={ref} online={online} act={act} />
               <FinalOutcome c={c} />
+              <ReplayPanel ref_={ref} />
             </div>
           </div>
         ) : (
@@ -453,6 +454,54 @@ function Notes({ c, ref_, online, act }: { c: OperatorCaseContext; ref_: string;
         ))}
       </div>
       <p className="mt-1 text-[11px] text-ink-400">Notes are append-only and never shown to customers or participants.</p>
+    </Section>
+  );
+}
+
+// M4B · Marketplace Replay — lazy, immutable event-driven lifecycle reconstruction with integrity flags.
+function ReplayPanel({ ref_ }: { ref_: string }) {
+  const [rep, setRep] = useState<Awaited<ReturnType<typeof svc.replay>> | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  async function load() {
+    if (busy) return;
+    setBusy(true); setErr(null);
+    try { setRep(await svc.replay(ref_)); } catch (e) { setErr(marketplaceError(e).message); } finally { setBusy(false); }
+  }
+  const tone = (s: string) => (s === "PRESENT" ? "text-emerald-600" : s === "DUPLICATE" || s === "MISSING" ? "text-red-600" : "text-ink-300");
+  return (
+    <Section title="Marketplace Replay">
+      {!rep ? (
+        <Button size="sm" variant="secondary" onClick={load} loading={busy}>Reconstruct lifecycle</Button>
+      ) : (
+        <div className="space-y-2">
+          <div className="text-xs text-ink-500">Terminal: <span className="font-medium text-ink-800">{rep.terminal ?? "—"}</span></div>
+          {(rep.integrity.has_missing || rep.integrity.has_duplicate || rep.integrity.out_of_order) && (
+            <div role="alert" className="rounded border border-red-200 bg-red-50 p-2 text-xs text-red-700">
+              Integrity: {rep.integrity.has_missing && `missing [${rep.integrity.missing_stages.join(", ")}] `}
+              {rep.integrity.has_duplicate && `duplicate [${rep.integrity.duplicate_stages.join(", ")}] `}
+              {rep.integrity.out_of_order && "out-of-order"}
+            </div>
+          )}
+          <ol className="space-y-0.5">
+            {rep.stages.map((s) => (
+              <li key={s.stage} className="flex items-center justify-between text-xs">
+                <span className="text-ink-600">{s.order + 1}. {s.stage.replace(/_/g, " ").toLowerCase()}</span>
+                <span className={tone(s.status)}>{s.observed ? (s.first_at ? formatDateTime(s.first_at) : "yes") : s.status.toLowerCase()}</span>
+              </li>
+            ))}
+          </ol>
+          <details className="text-xs">
+            <summary className="cursor-pointer text-ink-500">Immutable events ({rep.events.length})</summary>
+            <ol className="mt-1 max-h-48 space-y-0.5 overflow-y-auto">
+              {rep.events.map((e, i) => (
+                <li key={i} className="flex items-start gap-2"><span className="w-36 shrink-0 text-ink-300">{formatDateTime(e.at)}</span><span className="text-ink-700">{e.event} · {e.actor_type}</span></li>
+              ))}
+            </ol>
+          </details>
+        </div>
+      )}
+      {err && <p role="alert" className="mt-2 text-xs text-red-600">{err}</p>}
     </Section>
   );
 }

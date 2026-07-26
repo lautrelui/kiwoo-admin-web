@@ -2,11 +2,13 @@ import { api } from "@/lib/api";
 import { marketplaceError } from "@/services/marketplaceParticipantService";
 import {
   AdjudicationPreview,
+  MarketplaceReplay,
   OperatorCaseContext,
   OperatorReviewQueueItem,
   ProposalActionResult,
   parseCaseContext,
   parseQueue,
+  parseReplay,
 } from "@/types/marketplaceOperator";
 
 // M4A-3 · operator adjudication console API client. Targets the canonical `operator/marketplace/*`
@@ -43,6 +45,10 @@ export const marketplaceOperatorService = {
   async caseContext(ref: string): Promise<OperatorCaseContext> {
     const { data } = await api.get(`${BASE}/reviews/${encodeURIComponent(ref)}`);
     return parseCaseContext(unwrap(data));
+  },
+  async replay(ref: string): Promise<MarketplaceReplay> {
+    const { data } = await api.get(`${BASE}/reviews/${encodeURIComponent(ref)}/replay`);
+    return parseReplay(unwrap(data));
   },
   async preview(ref: string, decision: "SETTLE" | "COMPENSATE"): Promise<AdjudicationPreview> {
     const { data } = await api.get(`${BASE}/reviews/${encodeURIComponent(ref)}/preview`, { params: { decision } });

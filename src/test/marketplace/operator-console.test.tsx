@@ -5,11 +5,11 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 vi.mock("@/components/layout/AppLayout", () => ({ AppLayout: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
 
-const { reviews, caseContext, preview, propose, approve, addNote, reject } = vi.hoisted(() => ({
-  reviews: vi.fn(), caseContext: vi.fn(), preview: vi.fn(), propose: vi.fn(), approve: vi.fn(), addNote: vi.fn(), reject: vi.fn(),
+const { reviews, caseContext, preview, propose, approve, addNote, reject, replay } = vi.hoisted(() => ({
+  reviews: vi.fn(), caseContext: vi.fn(), preview: vi.fn(), propose: vi.fn(), approve: vi.fn(), addNote: vi.fn(), reject: vi.fn(), replay: vi.fn(),
 }));
 vi.mock("@/services/marketplaceOperatorService", () => ({
-  marketplaceOperatorService: { reviews, caseContext, preview, propose, approve, addNote, reject },
+  marketplaceOperatorService: { reviews, caseContext, preview, propose, approve, addNote, reject, replay },
   marketplaceError: (e: { response?: { status?: number; data?: { message?: string[] } }; message?: string }) => ({
     status: e?.response?.status ?? null, code: e?.response?.data?.message?.[0] ?? e?.message ?? "", message: e?.response?.data?.message?.[0] ?? e?.message ?? "error",
   }),
@@ -19,7 +19,7 @@ import ReviewQueue from "@/pages/marketplace/operator/ReviewQueue";
 import CaseDetail from "@/pages/marketplace/operator/CaseDetail";
 import { parseCaseContext, parseQueue } from "@/types/marketplaceOperator";
 import { ageText, fourEyesTone, reviewReasonLabel } from "@/lib/marketplaceOperator";
-import { fxCase, fxCaseAdjudicated, fxCasePending, fxPreviewCompensateProhibited, fxPreviewSettle, fxQueue } from "@/lib/marketplaceOperatorFixtures";
+import { fxCase, fxCaseAdjudicated, fxCasePending, fxPreviewCompensateProhibited, fxPreviewSettle, fxQueue, fxReplay, fxReplayBroken } from "@/lib/marketplaceOperatorFixtures";
 
 const FORBIDDEN = ["collection_code_hash", "qr_token", "settlement_journal_id", "reservation_journal_id", "device_ref_hash", "session_ref_hash", "$argon2", "matching_policy_id", "adjudicated_by"];
 
@@ -32,7 +32,7 @@ function renderCase() {
 }
 
 beforeEach(() => {
-  [reviews, caseContext, preview, propose, approve, addNote, reject].forEach((m) => m.mockReset());
+  [reviews, caseContext, preview, propose, approve, addNote, reject, replay].forEach((m) => m.mockReset());
 });
 
 describe("unit + privacy", () => {
@@ -123,5 +123,36 @@ describe("CaseDetail", () => {
     await userEvent.type(screen.getByLabelText(/Operator note/i), "considering compensation");
     await userEvent.click(screen.getByRole("button", { name: /Preview impact/i }));
     await screen.findByText(/compensation prohibited/i);
+  });
+});
+
+describe("M4B Marketplace Replay", () => {
+  it("lazy-loads the immutable lifecycle + renders canonical stages; clean case has no integrity alert", async () => {
+    caseContext.mockResolvedValue(fxCase);
+    replay.mockResolvedValue(fxReplay);
+    renderCase();
+    await screen.findByText("Marketplace Replay");
+    await userEvent.click(screen.getByRole("button", { name: /Reconstruct lifecycle/i }));
+    await waitFor(() => expect(replay).toHaveBeenCalledWith("MFL-op-1"));
+    expect(await screen.findByText(/cash handover/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Integrity:/)).not.toBeInTheDocument();
+  });
+
+  it("surfaces integrity violations (missing / out-of-order) as an alert", async () => {
+    caseContext.mockResolvedValue(fxCase);
+    replay.mockResolvedValue(fxReplayBroken);
+    renderCase();
+    await screen.findByText("Marketplace Replay");
+    await userEvent.click(screen.getByRole("button", { name: /Reconstruct lifecycle/i }));
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent(/missing/i);
+    expect(alert).toHaveTextContent(/out-of-order/i);
+  });
+
+  it("replay projection carries no forbidden fields (privacy)", () => {
+    const json = JSON.stringify(fxReplay);
+    for (const f of ["journal", "correlation_id", "trace_id", "event_id", "metadata", "device_ref_hash", "$argon2", "collection_code"]) {
+      expect(json).not.toContain(f);
+    }
   });
 });

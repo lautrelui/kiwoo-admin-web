@@ -180,6 +180,29 @@ export function parseQueue(v: unknown): { items: OperatorReviewQueueItem[]; tota
   };
 }
 
+// M4B · Marketplace Replay (immutable event-driven lifecycle reconstruction; privacy-safe).
+export interface ReplayEvent { at: string; source: string; event: string; actor_type: string; state: string | null; stage: string | null; }
+export interface ReplayStageStatus { stage: string; order: number; observed: boolean; occurrences: number; first_at: string | null; status: string; }
+export interface MarketplaceReplay {
+  fulfilment_ref: string | null;
+  payment_ref: string;
+  terminal: string | null;
+  events: ReplayEvent[];
+  stages: ReplayStageStatus[];
+  integrity: { has_missing: boolean; has_duplicate: boolean; out_of_order: boolean; missing_stages: string[]; duplicate_stages: string[] };
+}
+export function parseReplay(v: unknown): MarketplaceReplay {
+  const r = (v ?? {}) as Partial<MarketplaceReplay>;
+  return {
+    fulfilment_ref: r.fulfilment_ref ?? null,
+    payment_ref: r.payment_ref ?? "",
+    terminal: r.terminal ?? null,
+    events: asArr(r.events),
+    stages: asArr(r.stages),
+    integrity: r.integrity ?? { has_missing: false, has_duplicate: false, out_of_order: false, missing_stages: [], duplicate_stages: [] },
+  };
+}
+
 export function parseCaseContext(v: unknown): OperatorCaseContext {
   const c = (v ?? {}) as OperatorCaseContext;
   // Guarantee arrays + nested objects exist.

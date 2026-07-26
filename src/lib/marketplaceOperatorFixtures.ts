@@ -123,5 +123,28 @@ export const fxPreviewCompensateProhibited: AdjudicationPreview = {
   test_notice: TEST,
 };
 
+import type { MarketplaceReplay } from "@/types/marketplaceOperator";
+export const fxReplay: MarketplaceReplay = {
+  fulfilment_ref: "MFL-op-1",
+  payment_ref: "OPmt-op-1",
+  terminal: "SETTLED",
+  events: [
+    { at: "2026-07-25T09:10:00Z", source: "transition", event: "MarketplaceParticipantAccepted", actor_type: "participant", state: "PARTICIPANT_ACCEPTED", stage: "PARTICIPANT_ACCEPTANCE" },
+    { at: "2026-07-25T09:20:00Z", source: "evidence", event: "COLLECTION_CREDENTIAL_VERIFIED", actor_type: "participant", state: null, stage: "CREDENTIAL_VERIFICATION" },
+    { at: "2026-07-25T09:25:00Z", source: "evidence", event: "PARTICIPANT_HANDOVER_CONFIRMED", actor_type: "participant", state: null, stage: "CASH_HANDOVER" },
+    { at: "2026-07-25T09:46:00Z", source: "transition", event: "MarketplaceSettled", actor_type: "system", state: "SETTLED", stage: "SETTLEMENT_OR_COMPENSATION" },
+  ],
+  stages: [
+    { stage: "PARTICIPANT_ACCEPTANCE", order: 4, observed: true, occurrences: 1, first_at: "2026-07-25T09:10:00Z", status: "PRESENT" },
+    { stage: "CASH_HANDOVER", order: 7, observed: true, occurrences: 1, first_at: "2026-07-25T09:25:00Z", status: "PRESENT" },
+    { stage: "SETTLEMENT_OR_COMPENSATION", order: 13, observed: true, occurrences: 1, first_at: "2026-07-25T09:46:00Z", status: "PRESENT" },
+  ],
+  integrity: { has_missing: false, has_duplicate: false, out_of_order: false, missing_stages: [], duplicate_stages: [] },
+};
+export const fxReplayBroken: MarketplaceReplay = {
+  ...fxReplay,
+  integrity: { has_missing: true, has_duplicate: false, out_of_order: true, missing_stages: ["RESERVE"], duplicate_stages: [] },
+};
+
 export const fxOpErrorDisabled: MarketplaceError = { status: 503, code: "marketplace_operator_disabled", message: "marketplace_operator_disabled" };
 export const fxOpErrorSelfApproval: MarketplaceError = { status: 403, code: "self_approval_forbidden", message: "self_approval_forbidden" };
