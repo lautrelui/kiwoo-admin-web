@@ -51,6 +51,8 @@ const NAV: NavItem[] = [
   // shown to operators, and these users never see the operator/ops pages above.
   // M4A-3 — Marketplace (Operator) adjudication console. Operator-only (ADMIN/SUPER_ADMIN/COMPLIANCE);
   // never shown to participants. Backend enforces MARKETPLACE_OPERATOR_ENABLED + role.
+  // M4A-4 — Marketplace Operations Dashboard ("Control Tower"). Operator-only; read-only supervision.
+  { label: "Control Tower", to: "/control-tower/marketplace", icon: "◎", section: "Marketplace (Operator)", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },
   { label: "Review Queue", to: "/operator/marketplace", icon: "⚖", section: "Marketplace (Operator)", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },
   { label: "Open Disputes", to: "/operator/marketplace/disputes", icon: "⚠", section: "Marketplace (Operator)", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },
   { label: "Timeouts", to: "/operator/marketplace/timeouts", icon: "⏱", section: "Marketplace (Operator)", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },

@@ -60,6 +60,8 @@ const PARTICIPANT_ROLE_GUARD: ("PARTICIPANT" | "CORP" | "LEH" | "MERCHANT_PARTIC
 // M4A-3 — operator adjudication console (operator-only; backend also gates on MARKETPLACE_OPERATOR_ENABLED).
 import ReviewQueue from "@/pages/marketplace/operator/ReviewQueue";
 import CaseDetail from "@/pages/marketplace/operator/CaseDetail";
+// M4A-4 — Marketplace Operations Dashboard (Control Tower). Operator-only; backend also gates on flag.
+import OpsDashboard from "@/pages/marketplace/ops/Dashboard";
 const OPERATOR_ROLE_GUARD: ("ADMIN" | "SUPER_ADMIN" | "COMPLIANCE")[] = ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"];
 
 export function AppRoutes() {
@@ -388,6 +390,7 @@ export function AppRoutes() {
       <Route path="/operator/marketplace/awaiting-approval" element={<ProtectedRoute roles={OPERATOR_ROLE_GUARD}><ReviewQueue preset="awaiting-approval" /></ProtectedRoute>} />
       <Route path="/operator/marketplace/adjudicated" element={<ProtectedRoute roles={OPERATOR_ROLE_GUARD}><ReviewQueue preset="adjudicated" /></ProtectedRoute>} />
       <Route path="/operator/marketplace/case/:ref" element={<ProtectedRoute roles={OPERATOR_ROLE_GUARD}><CaseDetail /></ProtectedRoute>} />
+      <Route path="/control-tower/marketplace" element={<ProtectedRoute roles={OPERATOR_ROLE_GUARD}><OpsDashboard /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
