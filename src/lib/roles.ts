@@ -11,6 +11,9 @@ export const PARTICIPANT_ROLES: Role[] = ["PARTICIPANT", "CORP", "LEH", "MERCHAN
 /** Kiwoo operator/staff roles (the existing admin surfaces). */
 export const OPERATOR_ROLES: Role[] = ["ADMIN", "SUPER_ADMIN", "TREASURY", "COMPLIANCE", "VIEWER"];
 
+/** Roles authorized to adjudicate Marketplace cases (M4A-3 operator console). Backend also enforces. */
+export const MARKETPLACE_OPERATOR_ROLES: Role[] = ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"];
+
 export function hasAny(roles: Role[] | undefined, allowed: Role[]): boolean {
   if (!roles || roles.length === 0) return false;
   return roles.some((r) => allowed.includes(r));

@@ -49,6 +49,15 @@ const NAV: NavItem[] = [
   { label: "Status Watchdog", to: "/connect/watchdog", icon: "↺", section: "Communications" },
   // M4A-2 — Marketplace (Participant): Corp/LEH/merchant/LP self-service. Participant-only; never
   // shown to operators, and these users never see the operator/ops pages above.
+  // M4A-3 — Marketplace (Operator) adjudication console. Operator-only (ADMIN/SUPER_ADMIN/COMPLIANCE);
+  // never shown to participants. Backend enforces MARKETPLACE_OPERATOR_ENABLED + role.
+  { label: "Review Queue", to: "/operator/marketplace", icon: "⚖", section: "Marketplace (Operator)", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },
+  { label: "Open Disputes", to: "/operator/marketplace/disputes", icon: "⚠", section: "Marketplace (Operator)", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },
+  { label: "Timeouts", to: "/operator/marketplace/timeouts", icon: "⏱", section: "Marketplace (Operator)", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },
+  { label: "Evidence Conflicts", to: "/operator/marketplace/conflicts", icon: "◑", section: "Marketplace (Operator)", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },
+  { label: "Reconciliation", to: "/operator/marketplace/reconciliation", icon: "↺", section: "Marketplace (Operator)", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },
+  { label: "Awaiting 2nd Approval", to: "/operator/marketplace/awaiting-approval", icon: "◔", section: "Marketplace (Operator)", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },
+  { label: "Adjudicated", to: "/operator/marketplace/adjudicated", icon: "✓", section: "Marketplace (Operator)", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },
   { label: "Overview", to: "/participant/marketplace", icon: "◎", section: "Marketplace (Participant)", participant: true },
   { label: "Liquidity", to: "/participant/marketplace/liquidity", icon: "≋", section: "Marketplace (Participant)", participant: true },
   { label: "Offers", to: "/participant/marketplace/offers", icon: "◈", section: "Marketplace (Participant)", participant: true },

@@ -57,6 +57,10 @@ const PARTICIPANT_ROLE_GUARD: ("PARTICIPANT" | "CORP" | "LEH" | "MERCHANT_PARTIC
   "LEH",
   "MERCHANT_PARTICIPANT",
 ];
+// M4A-3 — operator adjudication console (operator-only; backend also gates on MARKETPLACE_OPERATOR_ENABLED).
+import ReviewQueue from "@/pages/marketplace/operator/ReviewQueue";
+import CaseDetail from "@/pages/marketplace/operator/CaseDetail";
+const OPERATOR_ROLE_GUARD: ("ADMIN" | "SUPER_ADMIN" | "COMPLIANCE")[] = ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"];
 
 export function AppRoutes() {
   return (
@@ -374,6 +378,16 @@ export function AppRoutes() {
         path="/participant/marketplace/activity"
         element={<ProtectedRoute roles={PARTICIPANT_ROLE_GUARD}><ParticipantActivity /></ProtectedRoute>}
       />
+      {/* M4A-3 — Marketplace (Operator) adjudication console. Operator-only role gate; backend
+          MARKETPLACE_OPERATOR_ENABLED is the enforcement point (503 while dark). */}
+      <Route path="/operator/marketplace" element={<ProtectedRoute roles={OPERATOR_ROLE_GUARD}><ReviewQueue preset="all" /></ProtectedRoute>} />
+      <Route path="/operator/marketplace/disputes" element={<ProtectedRoute roles={OPERATOR_ROLE_GUARD}><ReviewQueue preset="disputes" /></ProtectedRoute>} />
+      <Route path="/operator/marketplace/timeouts" element={<ProtectedRoute roles={OPERATOR_ROLE_GUARD}><ReviewQueue preset="timeouts" /></ProtectedRoute>} />
+      <Route path="/operator/marketplace/conflicts" element={<ProtectedRoute roles={OPERATOR_ROLE_GUARD}><ReviewQueue preset="conflicts" /></ProtectedRoute>} />
+      <Route path="/operator/marketplace/reconciliation" element={<ProtectedRoute roles={OPERATOR_ROLE_GUARD}><ReviewQueue preset="reconciliation" /></ProtectedRoute>} />
+      <Route path="/operator/marketplace/awaiting-approval" element={<ProtectedRoute roles={OPERATOR_ROLE_GUARD}><ReviewQueue preset="awaiting-approval" /></ProtectedRoute>} />
+      <Route path="/operator/marketplace/adjudicated" element={<ProtectedRoute roles={OPERATOR_ROLE_GUARD}><ReviewQueue preset="adjudicated" /></ProtectedRoute>} />
+      <Route path="/operator/marketplace/case/:ref" element={<ProtectedRoute roles={OPERATOR_ROLE_GUARD}><CaseDetail /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

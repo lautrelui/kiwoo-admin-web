@@ -40,12 +40,24 @@ describe("navigation tenancy separation", () => {
     expect(has(container, "/kyc")).toBe(false);
   });
 
-  it("operator (ADMIN) sees the operator app, NOT the participant Marketplace section", () => {
+  it("operator (ADMIN) sees the operator app + operator Marketplace console, NOT the participant section", () => {
     const { container } = renderSidebar(["ADMIN"]);
     expect(has(container, "/treasury")).toBe(true);
     expect(has(container, "/ops")).toBe(true);
+    expect(has(container, "/operator/marketplace")).toBe(true); // M4A-3 operator console
     expect(has(container, "/participant/marketplace")).toBe(false);
     expect(has(container, "/participant/marketplace/obligations")).toBe(false);
+  });
+
+  it("pure participant does NOT see the operator Marketplace console", () => {
+    const { container } = renderSidebar(["LEH"]);
+    expect(has(container, "/operator/marketplace")).toBe(false);
+    expect(has(container, "/operator/marketplace/disputes")).toBe(false);
+  });
+
+  it("VIEWER operator does NOT see the adjudication console (not an authorized role)", () => {
+    const { container } = renderSidebar(["VIEWER"]);
+    expect(has(container, "/operator/marketplace")).toBe(false);
   });
 
   it("a user with BOTH roles sees both surfaces", () => {
