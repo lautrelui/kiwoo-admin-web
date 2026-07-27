@@ -60,6 +60,10 @@ const NAV: NavItem[] = [
   { label: "Reconciliation", to: "/operator/marketplace/reconciliation", icon: "↺", section: "Marketplace (Operator)", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },
   { label: "Awaiting 2nd Approval", to: "/operator/marketplace/awaiting-approval", icon: "◔", section: "Marketplace (Operator)", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },
   { label: "Adjudicated", to: "/operator/marketplace/adjudicated", icon: "✓", section: "Marketplace (Operator)", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },
+  // R2 — Cash-out Partner management console. Its own operational domain (NOT under Marketplace).
+  // Backend enforces marketplace.partners.* + the onboarding flag; these roles gate the nav UX.
+  { label: "Applications", to: "/cashout-partners/applications", icon: "▤", section: "Cash-out Partners", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },
+  { label: "Partners", to: "/cashout-partners/directory", icon: "◉", section: "Cash-out Partners", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },
   { label: "Overview", to: "/participant/marketplace", icon: "◎", section: "Marketplace (Participant)", participant: true },
   { label: "Liquidity", to: "/participant/marketplace/liquidity", icon: "≋", section: "Marketplace (Participant)", participant: true },
   { label: "Offers", to: "/participant/marketplace/offers", icon: "◈", section: "Marketplace (Participant)", participant: true },

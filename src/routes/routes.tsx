@@ -63,6 +63,13 @@ import CaseDetail from "@/pages/marketplace/operator/CaseDetail";
 // M4A-4 — Marketplace Operations Dashboard (Control Tower). Operator-only; backend also gates on flag.
 import OpsDashboard from "@/pages/marketplace/ops/Dashboard";
 const OPERATOR_ROLE_GUARD: ("ADMIN" | "SUPER_ADMIN" | "COMPLIANCE")[] = ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"];
+// R2 — Cash-out Partner management console. Additive / non-execution. Backend enforces
+// `marketplace.partners.*` + MARKETPLACE_PARTNER_ONBOARDING_ENABLED; these UI roles gate navigation.
+import PartnerApplications from "@/pages/cashout-partners/Applications";
+import PartnerApplicationDetail from "@/pages/cashout-partners/ApplicationDetail";
+import PartnerDirectory from "@/pages/cashout-partners/PartnerDirectory";
+import PartnerDetail from "@/pages/cashout-partners/PartnerDetail";
+const CASHOUT_PARTNER_ROLES: ("ADMIN" | "SUPER_ADMIN" | "COMPLIANCE")[] = ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"];
 
 export function AppRoutes() {
   return (
@@ -391,6 +398,11 @@ export function AppRoutes() {
       <Route path="/operator/marketplace/adjudicated" element={<ProtectedRoute roles={OPERATOR_ROLE_GUARD}><ReviewQueue preset="adjudicated" /></ProtectedRoute>} />
       <Route path="/operator/marketplace/case/:ref" element={<ProtectedRoute roles={OPERATOR_ROLE_GUARD}><CaseDetail /></ProtectedRoute>} />
       <Route path="/control-tower/marketplace" element={<ProtectedRoute roles={OPERATOR_ROLE_GUARD}><OpsDashboard /></ProtectedRoute>} />
+      {/* R2 — Cash-out Partner management console (additive; non-execution). */}
+      <Route path="/cashout-partners/applications" element={<ProtectedRoute roles={CASHOUT_PARTNER_ROLES}><PartnerApplications /></ProtectedRoute>} />
+      <Route path="/cashout-partners/applications/:id" element={<ProtectedRoute roles={CASHOUT_PARTNER_ROLES}><PartnerApplicationDetail /></ProtectedRoute>} />
+      <Route path="/cashout-partners/directory" element={<ProtectedRoute roles={CASHOUT_PARTNER_ROLES}><PartnerDirectory /></ProtectedRoute>} />
+      <Route path="/cashout-partners/directory/:id" element={<ProtectedRoute roles={CASHOUT_PARTNER_ROLES}><PartnerDetail /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
