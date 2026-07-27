@@ -40,6 +40,36 @@ import AnalyticsPage from "@/pages/ops/AnalyticsPage";
 // Sprint 13.9 Task 133 — Scenario Runner (Operations Center)
 import ScenarioRunner from "@/pages/ops/ScenarioRunner";
 import ScenarioRunDetail from "@/pages/ops/ScenarioRunDetail";
+// M4A-2 — Marketplace (Participant) surface. Participant-tenant only (Corp/LEH/merchant/LP). Every
+// route is additionally gated server-side by MARKETPLACE_PARTICIPANT_ENABLED (fail-closed while dark).
+import ParticipantOverview from "@/pages/marketplace/Overview";
+import ParticipantLiquidity from "@/pages/marketplace/Liquidity";
+import ParticipantOffers from "@/pages/marketplace/Offers";
+import ParticipantObligations from "@/pages/marketplace/Obligations";
+import ObligationDetail from "@/pages/marketplace/ObligationDetail";
+import ParticipantDisputes from "@/pages/marketplace/Disputes";
+import ParticipantEarnings from "@/pages/marketplace/Earnings";
+import ParticipantActivity from "@/pages/marketplace/Activity";
+
+const PARTICIPANT_ROLE_GUARD: ("PARTICIPANT" | "CORP" | "LEH" | "MERCHANT_PARTICIPANT")[] = [
+  "PARTICIPANT",
+  "CORP",
+  "LEH",
+  "MERCHANT_PARTICIPANT",
+];
+// M4A-3 — operator adjudication console (operator-only; backend also gates on MARKETPLACE_OPERATOR_ENABLED).
+import ReviewQueue from "@/pages/marketplace/operator/ReviewQueue";
+import CaseDetail from "@/pages/marketplace/operator/CaseDetail";
+// M4A-4 — Marketplace Operations Dashboard (Control Tower). Operator-only; backend also gates on flag.
+import OpsDashboard from "@/pages/marketplace/ops/Dashboard";
+const OPERATOR_ROLE_GUARD: ("ADMIN" | "SUPER_ADMIN" | "COMPLIANCE")[] = ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"];
+// R2 — Cash-out Partner management console. Additive / non-execution. Backend enforces
+// `marketplace.partners.*` + MARKETPLACE_PARTNER_ONBOARDING_ENABLED; these UI roles gate navigation.
+import PartnerApplications from "@/pages/cashout-partners/Applications";
+import PartnerApplicationDetail from "@/pages/cashout-partners/ApplicationDetail";
+import PartnerDirectory from "@/pages/cashout-partners/PartnerDirectory";
+import PartnerDetail from "@/pages/cashout-partners/PartnerDetail";
+const CASHOUT_PARTNER_ROLES: ("ADMIN" | "SUPER_ADMIN" | "COMPLIANCE")[] = ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"];
 
 export function AppRoutes() {
   return (
@@ -323,6 +353,56 @@ export function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      {/* M4A-2 — Marketplace (Participant). Route-level roles gate the UX; the backend
+          `MARKETPLACE_PARTICIPANT_ENABLED` flag is the enforcement point (503 while dark). */}
+      <Route
+        path="/participant/marketplace"
+        element={<ProtectedRoute roles={PARTICIPANT_ROLE_GUARD}><ParticipantOverview /></ProtectedRoute>}
+      />
+      <Route
+        path="/participant/marketplace/liquidity"
+        element={<ProtectedRoute roles={PARTICIPANT_ROLE_GUARD}><ParticipantLiquidity /></ProtectedRoute>}
+      />
+      <Route
+        path="/participant/marketplace/offers"
+        element={<ProtectedRoute roles={PARTICIPANT_ROLE_GUARD}><ParticipantOffers /></ProtectedRoute>}
+      />
+      <Route
+        path="/participant/marketplace/obligations"
+        element={<ProtectedRoute roles={PARTICIPANT_ROLE_GUARD}><ParticipantObligations /></ProtectedRoute>}
+      />
+      <Route
+        path="/participant/marketplace/obligations/:ref"
+        element={<ProtectedRoute roles={PARTICIPANT_ROLE_GUARD}><ObligationDetail /></ProtectedRoute>}
+      />
+      <Route
+        path="/participant/marketplace/disputes"
+        element={<ProtectedRoute roles={PARTICIPANT_ROLE_GUARD}><ParticipantDisputes /></ProtectedRoute>}
+      />
+      <Route
+        path="/participant/marketplace/earnings"
+        element={<ProtectedRoute roles={PARTICIPANT_ROLE_GUARD}><ParticipantEarnings /></ProtectedRoute>}
+      />
+      <Route
+        path="/participant/marketplace/activity"
+        element={<ProtectedRoute roles={PARTICIPANT_ROLE_GUARD}><ParticipantActivity /></ProtectedRoute>}
+      />
+      {/* M4A-3 — Marketplace (Operator) adjudication console. Operator-only role gate; backend
+          MARKETPLACE_OPERATOR_ENABLED is the enforcement point (503 while dark). */}
+      <Route path="/operator/marketplace" element={<ProtectedRoute roles={OPERATOR_ROLE_GUARD}><ReviewQueue preset="all" /></ProtectedRoute>} />
+      <Route path="/operator/marketplace/disputes" element={<ProtectedRoute roles={OPERATOR_ROLE_GUARD}><ReviewQueue preset="disputes" /></ProtectedRoute>} />
+      <Route path="/operator/marketplace/timeouts" element={<ProtectedRoute roles={OPERATOR_ROLE_GUARD}><ReviewQueue preset="timeouts" /></ProtectedRoute>} />
+      <Route path="/operator/marketplace/conflicts" element={<ProtectedRoute roles={OPERATOR_ROLE_GUARD}><ReviewQueue preset="conflicts" /></ProtectedRoute>} />
+      <Route path="/operator/marketplace/reconciliation" element={<ProtectedRoute roles={OPERATOR_ROLE_GUARD}><ReviewQueue preset="reconciliation" /></ProtectedRoute>} />
+      <Route path="/operator/marketplace/awaiting-approval" element={<ProtectedRoute roles={OPERATOR_ROLE_GUARD}><ReviewQueue preset="awaiting-approval" /></ProtectedRoute>} />
+      <Route path="/operator/marketplace/adjudicated" element={<ProtectedRoute roles={OPERATOR_ROLE_GUARD}><ReviewQueue preset="adjudicated" /></ProtectedRoute>} />
+      <Route path="/operator/marketplace/case/:ref" element={<ProtectedRoute roles={OPERATOR_ROLE_GUARD}><CaseDetail /></ProtectedRoute>} />
+      <Route path="/control-tower/marketplace" element={<ProtectedRoute roles={OPERATOR_ROLE_GUARD}><OpsDashboard /></ProtectedRoute>} />
+      {/* R2 — Cash-out Partner management console (additive; non-execution). */}
+      <Route path="/cashout-partners/applications" element={<ProtectedRoute roles={CASHOUT_PARTNER_ROLES}><PartnerApplications /></ProtectedRoute>} />
+      <Route path="/cashout-partners/applications/:id" element={<ProtectedRoute roles={CASHOUT_PARTNER_ROLES}><PartnerApplicationDetail /></ProtectedRoute>} />
+      <Route path="/cashout-partners/directory" element={<ProtectedRoute roles={CASHOUT_PARTNER_ROLES}><PartnerDirectory /></ProtectedRoute>} />
+      <Route path="/cashout-partners/directory/:id" element={<ProtectedRoute roles={CASHOUT_PARTNER_ROLES}><PartnerDetail /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

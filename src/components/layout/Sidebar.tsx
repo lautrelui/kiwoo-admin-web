@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
+import { OPERATOR_ROLES, PARTICIPANT_ROLES } from "@/lib/roles";
 import type { Role } from "@/types";
 
 interface NavItem {
@@ -9,6 +10,8 @@ interface NavItem {
   icon: string;
   roles?: Role[];
   section?: string;
+  /** Marketplace participant surface — shown ONLY to participant users. */
+  participant?: boolean;
 }
 
 const NAV: NavItem[] = [
@@ -44,12 +47,44 @@ const NAV: NavItem[] = [
   { label: "Templates", to: "/connect/templates", icon: "▤", section: "Communications" },
   { label: "Provider Health", to: "/connect/providers/health", icon: "◉", section: "Communications" },
   { label: "Status Watchdog", to: "/connect/watchdog", icon: "↺", section: "Communications" },
+  // M4A-2 — Marketplace (Participant): Corp/LEH/merchant/LP self-service. Participant-only; never
+  // shown to operators, and these users never see the operator/ops pages above.
+  // M4A-3 — Marketplace (Operator) adjudication console. Operator-only (ADMIN/SUPER_ADMIN/COMPLIANCE);
+  // never shown to participants. Backend enforces MARKETPLACE_OPERATOR_ENABLED + role.
+  // M4A-4 — Marketplace Operations Dashboard ("Control Tower"). Operator-only; read-only supervision.
+  { label: "Control Tower", to: "/control-tower/marketplace", icon: "◎", section: "Marketplace (Operator)", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },
+  { label: "Review Queue", to: "/operator/marketplace", icon: "⚖", section: "Marketplace (Operator)", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },
+  { label: "Open Disputes", to: "/operator/marketplace/disputes", icon: "⚠", section: "Marketplace (Operator)", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },
+  { label: "Timeouts", to: "/operator/marketplace/timeouts", icon: "⏱", section: "Marketplace (Operator)", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },
+  { label: "Evidence Conflicts", to: "/operator/marketplace/conflicts", icon: "◑", section: "Marketplace (Operator)", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },
+  { label: "Reconciliation", to: "/operator/marketplace/reconciliation", icon: "↺", section: "Marketplace (Operator)", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },
+  { label: "Awaiting 2nd Approval", to: "/operator/marketplace/awaiting-approval", icon: "◔", section: "Marketplace (Operator)", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },
+  { label: "Adjudicated", to: "/operator/marketplace/adjudicated", icon: "✓", section: "Marketplace (Operator)", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },
+  // R2 — Cash-out Partner management console. Its own operational domain (NOT under Marketplace).
+  // Backend enforces marketplace.partners.* + the onboarding flag; these roles gate the nav UX.
+  { label: "Applications", to: "/cashout-partners/applications", icon: "▤", section: "Cash-out Partners", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },
+  { label: "Partners", to: "/cashout-partners/directory", icon: "◉", section: "Cash-out Partners", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },
+  { label: "Overview", to: "/participant/marketplace", icon: "◎", section: "Marketplace (Participant)", participant: true },
+  { label: "Liquidity", to: "/participant/marketplace/liquidity", icon: "≋", section: "Marketplace (Participant)", participant: true },
+  { label: "Offers", to: "/participant/marketplace/offers", icon: "◈", section: "Marketplace (Participant)", participant: true },
+  { label: "Obligations", to: "/participant/marketplace/obligations", icon: "⇄", section: "Marketplace (Participant)", participant: true },
+  { label: "Disputes", to: "/participant/marketplace/disputes", icon: "⚠", section: "Marketplace (Participant)", participant: true },
+  { label: "Earnings", to: "/participant/marketplace/earnings", icon: "₿", section: "Marketplace (Participant)", participant: true },
+  { label: "Activity", to: "/participant/marketplace/activity", icon: "▤", section: "Marketplace (Participant)", participant: true },
 ];
 
 export function Sidebar() {
   const { user, hasRole } = useAuth();
 
+  // Tenancy separation: a PURE participant (participant role, no operator role) sees ONLY the
+  // participant Marketplace section; everyone else sees the operator app WITHOUT that section.
+  const isParticipant = hasRole(...PARTICIPANT_ROLES);
+  const isOperator = hasRole(...OPERATOR_ROLES);
+  const pureParticipant = isParticipant && !isOperator;
+
   const items = NAV.filter((item) => {
+    if (item.participant) return isParticipant; // participant section only for participants
+    if (pureParticipant) return false; // hide operator/ops pages from pure participants
     if (!item.roles) return true;
     if (!user) return true; // show all if role unknown — backend still authorizes
     return hasRole(...item.roles);
