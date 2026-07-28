@@ -17,7 +17,7 @@ describe("read-only ops routes + envelope", () => {
     const s = await svc.summary();
     expect(get).toHaveBeenCalledWith("operations/marketplace/summary");
     expect(s.active_participants).toBe(0);
-    expect(s.declared_liquidity).toBe("0");
+    expect(s.declared_capacity).toBe("0");
   });
   it("trends passes metric/bucket/days and parses points", async () => {
     get.mockResolvedValueOnce(env([{ bucket_start: "2026-07-25T00:00:00Z", count: 5 }]));
@@ -31,7 +31,7 @@ describe("read-only ops routes + envelope", () => {
     expect(get).toHaveBeenCalledWith("operations/marketplace/search", { params: { q: "MFL", state: "SETTLED", limit: 25 } });
   });
   it("liquidity parses breakdown arrays", async () => {
-    get.mockResolvedValueOnce(env({ total: { declared: "1", locked: "0", fulfilled: "0", available: "1" }, by_currency: [], by_service_area: [], by_offer_status: [] }));
+    get.mockResolvedValueOnce(env({ total: { declared: "1", locked: "0", fulfilled: "0", available: "1" }, by_currency: [], by_service_area: [], by_position_status: [] }));
     const l = await svc.liquidity();
     expect(l.total.available).toBe("1");
     expect(Array.isArray(l.by_service_area)).toBe(true);

@@ -66,7 +66,7 @@ const NAV: NavItem[] = [
   { label: "Partners", to: "/cashout-partners/directory", icon: "◉", section: "Cash-out Partners", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },
   { label: "Overview", to: "/participant/marketplace", icon: "◎", section: "Marketplace (Participant)", participant: true },
   { label: "Liquidity", to: "/participant/marketplace/liquidity", icon: "≋", section: "Marketplace (Participant)", participant: true },
-  { label: "Offers", to: "/participant/marketplace/offers", icon: "◈", section: "Marketplace (Participant)", participant: true },
+  { label: "Liquidity Positions", to: "/participant/marketplace/positions", icon: "◈", section: "Marketplace (Participant)", participant: true },
   { label: "Obligations", to: "/participant/marketplace/obligations", icon: "⇄", section: "Marketplace (Participant)", participant: true },
   { label: "Disputes", to: "/participant/marketplace/disputes", icon: "⚠", section: "Marketplace (Participant)", participant: true },
   { label: "Earnings", to: "/participant/marketplace/earnings", icon: "₿", section: "Marketplace (Participant)", participant: true },

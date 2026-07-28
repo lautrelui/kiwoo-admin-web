@@ -30,14 +30,14 @@ operations disposable-PG spec extended.
 ## 3. Backend read surface (all gated 503 dark, dark-safe zeros)
 
 `GET operations/marketplace/{summary,funnel,sla,participants,alerts,payments/:ref/timeline}` (existing) +
-`GET .../liquidity` (fleet + by service-area/currency/offer-status) + `GET .../timeline` (global feed) +
+`GET .../liquidity` (fleet + by service-area/currency/position-status) + `GET .../timeline` (global feed) +
 `GET .../search` (bounded fulfilment search) + `GET .../trends?metric&bucket&days` (quotes/settlements/
 compensations/disputes by hour/day/week). summary adds `completed_settlements_today`,
 `completed_compensations_today`, `active_alerts`.
 
 ## 4–15. Dashboard implementation (maps to the spec sections)
 
-- **Overview KPIs** — 16 cards from `summary` (participants, offers, declared/available/locked/fulfilled
+- **Overview KPIs** — 16 cards from `summary` (participants, positions, declared/available/locked/fulfilled
   liquidity, pending acceptance, ready, awaiting, manual reviews, open disputes, pending compensations,
   completed today, active alerts, completed all-time). Actionable KPIs drill into the operator console.
 - **Funnel** — `funnel` → recharts bars + per-step count / conversion% / drop-off% (empty-safe: conversion

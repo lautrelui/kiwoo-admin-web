@@ -6,7 +6,7 @@
 import type {
   EvidenceTrailItem,
   ObligationView,
-  OfferView,
+  PositionView,
   ParticipantOverview,
   ParticipantReceipt,
 } from "@/types/marketplace";
@@ -15,10 +15,10 @@ import type { MarketplaceError } from "@/services/marketplaceParticipantService"
 
 export const fxOverviewEmpty: ParticipantOverview = {
   currency: "HTG",
-  declared_liquidity: "0",
+  declared_capacity: "0",
   available_liquidity: "0",
-  locked_liquidity: "0",
-  fulfilled_liquidity: "0",
+  locked_capacity: "0",
+  fulfilled_capacity: "0",
   active_offers: 0,
   paused_offers: 0,
   pending_obligations: 0,
@@ -34,10 +34,10 @@ export const fxOverviewEmpty: ParticipantOverview = {
 
 export const fxOverviewActive: ParticipantOverview = {
   currency: "HTG",
-  declared_liquidity: "5000",
+  declared_capacity: "5000",
   available_liquidity: "3897",
-  locked_liquidity: "1000",
-  fulfilled_liquidity: "103",
+  locked_capacity: "1000",
+  fulfilled_capacity: "103",
   active_offers: 2,
   paused_offers: 1,
   pending_obligations: 1,
@@ -51,14 +51,14 @@ export const fxOverviewActive: ParticipantOverview = {
   test_notice: TEST_TRANSACTION_NOTICE,
 };
 
-export const fxOfferActive: OfferView = {
-  offer_ref: "OFR-active-1",
+export const fxPositionActive: PositionView = {
+  position_ref: "POS-active-1",
   currency: "HTG",
   status: "ACTIVE",
-  declared_liquidity: "5000",
-  locked_liquidity: "1000",
-  fulfilled_liquidity: "103",
-  available_liquidity: "3897",
+  declared_capacity: "5000",
+  locked_capacity: "1000",
+  fulfilled_capacity: "103",
+  available_capacity: "3897",
   min_amount: "50",
   max_amount: "2000",
   participant_cost_bps: 25,
@@ -67,20 +67,20 @@ export const fxOfferActive: OfferView = {
   updated_at: "2026-07-25T12:00:00Z",
 };
 
-export const fxOfferPaused: OfferView = {
-  ...fxOfferActive,
-  offer_ref: "OFR-paused-1",
+export const fxPositionPaused: PositionView = {
+  ...fxPositionActive,
+  position_ref: "POS-paused-1",
   status: "PAUSED",
   location_label: "Delmas",
 };
 
-export const fxOfferFullyLocked: OfferView = {
-  ...fxOfferActive,
-  offer_ref: "OFR-locked-1",
-  declared_liquidity: "1000",
-  locked_liquidity: "1000",
-  fulfilled_liquidity: "0",
-  available_liquidity: "0",
+export const fxPositionFullyLocked: PositionView = {
+  ...fxPositionActive,
+  position_ref: "POS-locked-1",
+  declared_capacity: "1000",
+  locked_capacity: "1000",
+  fulfilled_capacity: "0",
+  available_capacity: "0",
 };
 
 export const fxObligationPending: ObligationView = {

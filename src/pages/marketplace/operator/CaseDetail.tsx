@@ -178,7 +178,7 @@ function LiquidityState({ c }: { c: OperatorCaseContext }) {
   const l = c.liquidity;
   return (
     <Section title="Liquidity state">
-      <KV k="Matched offer" v={l.matched_offer_ref ?? "—"} />
+      <KV k="Matched position" v={l.matched_position_ref ?? "—"} />
       <KV k="Lock present" v={yn(l.lock_present)} />
       <KV k="Lock consumed" v={yn(l.lock_consumed)} />
       <KV k="Lock released" v={yn(l.lock_released)} />

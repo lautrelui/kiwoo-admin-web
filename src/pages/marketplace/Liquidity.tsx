@@ -9,29 +9,29 @@ import {
   StateBadge,
   TestNotice,
 } from "@/components/marketplace/atoms";
-import { formatDateTime, formatMoney, offerTone } from "@/lib/marketplace";
+import { formatDateTime, formatMoney, positionTone } from "@/lib/marketplace";
 import { useAsyncResource, useLifecycleRefresh, useOnline } from "@/lib/marketplaceHooks";
 import { marketplaceParticipantService } from "@/services/marketplaceParticipantService";
-import type { OfferView } from "@/types/marketplace";
+import type { PositionView } from "@/types/marketplace";
 import { cn } from "@/lib/utils";
 
-// M4A-2 · liquidity DASHBOARD (read-only). Per-offer declared/available/locked/fulfilled + operational
+// M4A-2 · liquidity DASHBOARD (read-only). Per-position declared/available/locked/fulfilled + operational
 // constraints + informational utilization. Never exposes customer pricing or Kiwoo margin. Backend
 // values are authoritative — utilization is a display-only ratio.
 
-function utilization(o: OfferView): number {
-  const declared = Number(o.declared_liquidity);
+function utilization(o: PositionView): number {
+  const declared = Number(o.declared_capacity);
   if (!Number.isFinite(declared) || declared <= 0) return 0;
-  const used = Number(o.locked_liquidity) + Number(o.fulfilled_liquidity);
+  const used = Number(o.locked_capacity) + Number(o.fulfilled_capacity);
   const pct = Math.round((used / declared) * 100);
   return Math.max(0, Math.min(100, Number.isFinite(pct) ? pct : 0));
 }
 
 export default function ParticipantLiquidity() {
   const online = useOnline();
-  const res = useAsyncResource(() => marketplaceParticipantService.listOffers(), []);
+  const res = useAsyncResource(() => marketplaceParticipantService.listPositions(), []);
   useLifecycleRefresh(res.reload);
-  const offers = res.data ?? [];
+  const positions = res.data ?? [];
 
   return (
     <ParticipantPage
@@ -44,34 +44,34 @@ export default function ParticipantLiquidity() {
       }
     >
       <OfflineBanner online={online} />
-      <TestNotice notice={offers[0] ? null : null} />
+      <TestNotice notice={positions[0] ? null : null} />
 
       <FeatureGate availability={res.availability} code={res.error?.code} onRetry={res.reload}>
         <div className="grid gap-4 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <Card>
               <CardHeader>
-                <CardTitle>Your liquidity offers</CardTitle>
+                <CardTitle>Your liquidity positions</CardTitle>
               </CardHeader>
               <CardBody>
                 <DataTable
                   columns={[
-                    { key: "offer_ref", header: "Offer", render: (o: OfferView) => <span className="font-mono text-xs">{o.offer_ref}</span> },
-                    { key: "status", header: "Status", render: (o: OfferView) => <StatusPill o={o} /> },
-                    { key: "declared", header: "Declared", render: (o: OfferView) => formatMoney(o.declared_liquidity, o.currency) },
-                    { key: "available", header: "Available", render: (o: OfferView) => formatMoney(o.available_liquidity, o.currency) },
-                    { key: "locked", header: "Locked", render: (o: OfferView) => formatMoney(o.locked_liquidity, o.currency) },
-                    { key: "fulfilled", header: "Fulfilled", render: (o: OfferView) => formatMoney(o.fulfilled_liquidity, o.currency) },
-                    { key: "bounds", header: "Min / Max", render: (o: OfferView) => `${formatMoney(o.min_amount, o.currency)} – ${formatMoney(o.max_amount, o.currency)}` },
-                    { key: "util", header: "Utilization", render: (o: OfferView) => <Util pct={utilization(o)} /> },
-                    { key: "area", header: "Area", render: (o: OfferView) => o.location_label ?? "—" },
-                    { key: "method", header: "Payout", render: (o: OfferView) => o.payout_method ?? "—" },
-                    { key: "updated", header: "Updated", render: (o: OfferView) => formatDateTime(o.updated_at) },
+                    { key: "position_ref", header: "Position", render: (o: PositionView) => <span className="font-mono text-xs">{o.position_ref}</span> },
+                    { key: "status", header: "Status", render: (o: PositionView) => <StatusPill o={o} /> },
+                    { key: "declared", header: "Declared", render: (o: PositionView) => formatMoney(o.declared_capacity, o.currency) },
+                    { key: "available", header: "Available", render: (o: PositionView) => formatMoney(o.available_capacity, o.currency) },
+                    { key: "locked", header: "Locked", render: (o: PositionView) => formatMoney(o.locked_capacity, o.currency) },
+                    { key: "fulfilled", header: "Fulfilled", render: (o: PositionView) => formatMoney(o.fulfilled_capacity, o.currency) },
+                    { key: "bounds", header: "Min / Max", render: (o: PositionView) => `${formatMoney(o.min_amount, o.currency)} – ${formatMoney(o.max_amount, o.currency)}` },
+                    { key: "util", header: "Utilization", render: (o: PositionView) => <Util pct={utilization(o)} /> },
+                    { key: "area", header: "Area", render: (o: PositionView) => o.location_label ?? "—" },
+                    { key: "method", header: "Payout", render: (o: PositionView) => o.payout_method ?? "—" },
+                    { key: "updated", header: "Updated", render: (o: PositionView) => formatDateTime(o.updated_at) },
                   ]}
-                  rows={offers}
+                  rows={positions}
                   loading={res.loading}
-                  emptyMessage="No liquidity offers yet. Create one from Offers."
-                  rowKey={(o) => o.offer_ref}
+                  emptyMessage="No liquidity positions yet. Create one from Positions."
+                  rowKey={(o) => o.position_ref}
                 />
               </CardBody>
             </Card>
@@ -82,7 +82,7 @@ export default function ParticipantLiquidity() {
               </CardHeader>
               <CardBody>
                 <p className="text-sm text-ink-400">
-                  An immutable per-offer change history (created / increased / reduced / paused / resumed /
+                  An immutable per-position change history (created / increased / reduced / paused / resumed /
                   closed / lock acquired / released / consumed / fulfilled) requires a dedicated
                   participant-safe backend endpoint that does not exist yet. This section intentionally
                   shows nothing rather than fabricate events. Tracked as an M4A-2 API gap.
@@ -100,8 +100,8 @@ export default function ParticipantLiquidity() {
   );
 }
 
-function StatusPill({ o }: { o: OfferView }) {
-  const tone = offerTone(o.status);
+function StatusPill({ o }: { o: PositionView }) {
+  const tone = positionTone(o.status);
   const cls: Record<string, string> = {
     good: "bg-emerald-50 text-emerald-700 border-emerald-200",
     warn: "bg-amber-50 text-amber-700 border-amber-200",

@@ -3,13 +3,13 @@ import { api } from "@/lib/api";
 import {
   EvidenceTrailItem,
   ObligationView,
-  OfferView,
+  PositionView,
   ParticipantOverview,
   ParticipantReceipt,
   StatusResult,
   parseEvidenceItem,
   parseObligation,
-  parseOffer,
+  parsePosition,
   parseOverview,
   parseReceipt,
 } from "@/types/marketplace";
@@ -51,58 +51,58 @@ export const marketplaceParticipantService = {
     return parseOverview(unwrap<Record<string, unknown>>(data) ?? {});
   },
 
-  // ── Liquidity offers ────────────────────────────────────────────────────────
-  async listOffers(): Promise<OfferView[]> {
+  // ── Liquidity positions ────────────────────────────────────────────────────────
+  async listPositions(): Promise<PositionView[]> {
     const { data } = await api.get(`${BASE}/liquidity-offers`);
     const rows = unwrap<Record<string, unknown>[]>(data) ?? [];
-    return (Array.isArray(rows) ? rows : []).map(parseOffer);
+    return (Array.isArray(rows) ? rows : []).map(parsePosition);
   },
-  async createOffer(input: {
+  async createPosition(input: {
     currency: string;
-    declared_liquidity: string;
+    declared_capacity: string;
     min_amount?: string;
     max_amount?: string;
     participant_cost_bps?: number;
     payout_method?: string;
     location_label?: string;
-  }): Promise<OfferView> {
+  }): Promise<PositionView> {
     const { data } = await api.post(`${BASE}/liquidity-offers`, input);
-    return parseOffer(unwrap<Record<string, unknown>>(data) ?? {});
+    return parsePosition(unwrap<Record<string, unknown>>(data) ?? {});
   },
-  async updateOffer(
-    offerRef: string,
+  async updatePosition(
+    positionRef: string,
     input: {
       currency?: string;
-      declared_liquidity?: string;
+      declared_capacity?: string;
       min_amount?: string;
       max_amount?: string;
       participant_cost_bps?: number;
       payout_method?: string;
       location_label?: string;
     }
-  ): Promise<OfferView> {
-    const { data } = await api.patch(`${BASE}/liquidity-offers/${encodeURIComponent(offerRef)}`, input);
-    return parseOffer(unwrap<Record<string, unknown>>(data) ?? {});
+  ): Promise<PositionView> {
+    const { data } = await api.patch(`${BASE}/liquidity-offers/${encodeURIComponent(positionRef)}`, input);
+    return parsePosition(unwrap<Record<string, unknown>>(data) ?? {});
   },
-  async increaseOffer(offerRef: string, amount: string): Promise<OfferView> {
-    const { data } = await api.post(`${BASE}/liquidity-offers/${encodeURIComponent(offerRef)}/increase`, { amount });
-    return parseOffer(unwrap<Record<string, unknown>>(data) ?? {});
+  async increasePosition(positionRef: string, amount: string): Promise<PositionView> {
+    const { data } = await api.post(`${BASE}/liquidity-offers/${encodeURIComponent(positionRef)}/increase`, { amount });
+    return parsePosition(unwrap<Record<string, unknown>>(data) ?? {});
   },
-  async decreaseOffer(offerRef: string, amount: string): Promise<OfferView> {
-    const { data } = await api.post(`${BASE}/liquidity-offers/${encodeURIComponent(offerRef)}/decrease`, { amount });
-    return parseOffer(unwrap<Record<string, unknown>>(data) ?? {});
+  async decreasePosition(positionRef: string, amount: string): Promise<PositionView> {
+    const { data } = await api.post(`${BASE}/liquidity-offers/${encodeURIComponent(positionRef)}/decrease`, { amount });
+    return parsePosition(unwrap<Record<string, unknown>>(data) ?? {});
   },
-  async pauseOffer(offerRef: string): Promise<OfferView> {
-    const { data } = await api.post(`${BASE}/liquidity-offers/${encodeURIComponent(offerRef)}/pause`, {});
-    return parseOffer(unwrap<Record<string, unknown>>(data) ?? {});
+  async pausePosition(positionRef: string): Promise<PositionView> {
+    const { data } = await api.post(`${BASE}/liquidity-offers/${encodeURIComponent(positionRef)}/pause`, {});
+    return parsePosition(unwrap<Record<string, unknown>>(data) ?? {});
   },
-  async resumeOffer(offerRef: string): Promise<OfferView> {
-    const { data } = await api.post(`${BASE}/liquidity-offers/${encodeURIComponent(offerRef)}/resume`, {});
-    return parseOffer(unwrap<Record<string, unknown>>(data) ?? {});
+  async resumePosition(positionRef: string): Promise<PositionView> {
+    const { data } = await api.post(`${BASE}/liquidity-offers/${encodeURIComponent(positionRef)}/resume`, {});
+    return parsePosition(unwrap<Record<string, unknown>>(data) ?? {});
   },
-  async closeOffer(offerRef: string): Promise<OfferView> {
-    const { data } = await api.post(`${BASE}/liquidity-offers/${encodeURIComponent(offerRef)}/close`, {});
-    return parseOffer(unwrap<Record<string, unknown>>(data) ?? {});
+  async closePosition(positionRef: string): Promise<PositionView> {
+    const { data } = await api.post(`${BASE}/liquidity-offers/${encodeURIComponent(positionRef)}/close`, {});
+    return parsePosition(unwrap<Record<string, unknown>>(data) ?? {});
   },
 
   // ── Obligations ──────────────────────────────────────────────────────────────

@@ -24,7 +24,7 @@ API/DTO gaps, and M4A-3 prerequisites for the participant interface.
   FormInput/Select/Textarea, StatusBadge) — reused, no new visual system.
 - **Backend:** the participant API already exists (`participant/marketplace/*`, `JwtGuard`, gated by
   `MARKETPLACE_PARTICIPANT_ENABLED`, server-side identity = `user.id`). Client-safe projections
-  `OfferView` / `ObligationView` / `ParticipantReceiptDto` / evidence trail already strip PII + ledger ids.
+  `PositionView` / `ObligationView` / `ParticipantReceiptDto` / evidence trail already strip PII + ledger ids.
 
 ## 2. Files added / changed
 
@@ -38,7 +38,7 @@ API/DTO gaps, and M4A-3 prerequisites for the participant interface.
 - `src/components/marketplace/atoms.tsx` — TestNotice, EnvTestBanner, ParticipantPage, StateBadge,
   MoneyBreakdown, LiquidityConcepts, OfflineBanner, FeatureGate.
 - `src/components/marketplace/CredentialInput.tsx` — secure one-time credential validation.
-- `src/pages/marketplace/{Overview,Liquidity,Offers,Obligations,ObligationDetail,Disputes,Earnings,Activity}.tsx`.
+- `src/pages/marketplace/{Overview,Liquidity,Positions,Obligations,ObligationDetail,Disputes,Earnings,Activity}.tsx`.
 - `src/components/layout/Sidebar.tsx` — participant section + tenancy filter.
 - `src/routes/routes.tsx` — 8 participant routes (role-guarded). `src/types/index.ts` — Role union.
 - `src/test/marketplace/*` — unit/component/security/integration tests; `vitest.config.ts` + setup.
@@ -58,7 +58,7 @@ participant id as an authority-bearing field. Route/nav roles gate UX only.
 |---|---|---|
 | Operator + Ops pages | ✅ | ❌ (hidden; backend AdminGuard also blocks) |
 | Marketplace (Participant) nav + routes | ❌ (hidden) | ✅ |
-| Own offers / obligations / entitlement / disputes | — | ✅ (server ownership-checked) |
+| Own positions / obligations / entitlement / disputes | — | ✅ (server ownership-checked) |
 | Another participant's data, matching candidates, operator notes, customer KYC/ledger | ❌ | ❌ |
 
 A **pure** participant (participant role, no operator role) sees ONLY the participant section; an
@@ -72,11 +72,11 @@ Kiwoo wallet balance · **Declared** physical liquidity · **Available** (declar
 earning) · **Total entitlement** (principal + compensation). Rendered with the prominent notice:
 "Declared liquidity … is **not** your Kiwoo wallet balance."
 
-## 5. Offer-management guide
+## 5. Position-management guide
 
 Create / edit constraints / increase / reduce / pause / resume / close. The UI states: Kiwoo sets the
 customer price (participant cost input ≠ customer fee, ≠ guaranteed selection); accepted quote economics
-are immutable; declared cannot drop below locked+fulfilled; an offer with active locks can't be closed;
+are immutable; declared cannot drop below locked+fulfilled; a position with active locks can't be closed;
 pausing stops new matching but not existing obligations. Client validation is usability-only; backend
 messages are shown verbatim.
 
@@ -128,7 +128,7 @@ liquidity, or that entitlement is a wallet balance. `MoneyBreakdown` renders the
 
 ## 11. Offline & stale-state handling
 
-`useOnline()` blocks all offer mutations / accept / reject / validate / handover / dispute while offline
+`useOnline()` blocks all position mutations / accept / reject / validate / handover / dispute while offline
 (read-only display of already-loaded data only; nothing is queued). `useLifecycleRefresh()` re-fetches on
 window focus / tab restore / reconnect. Financial actions require a live server response; optimistic
 assumptions are replaced by server state before any action is enabled.
@@ -162,7 +162,7 @@ event/result names only — see the spec's allowlist.)
 
 Participant login works; participant nav loads per dark-read policy; TEST notice renders; zero-row states
 render; every write (create/edit/pause/resume/close, accept/reject, validate, handover, dispute) is
-backend-blocked (503); no offer/lock/fulfilment/evidence/settlement/compensation/journal created; no
+backend-blocked (503); no position/lock/fulfilment/evidence/settlement/compensation/journal created; no
 browser-storage secret; existing admin pages functional; MonCash unchanged.
 
 ## 16. Rollback
@@ -173,7 +173,7 @@ backend is additive + gated; the frontend is static.
 
 ## 17. Unresolved API / DTO gaps
 
-- **Liquidity change history** — no participant-safe per-offer history endpoint exists; the Liquidity page
+- **Liquidity change history** — no participant-safe per-position history endpoint exists; the Liquidity page
   shows nothing there rather than fabricate events. (Would need `GET liquidity-offers/:ref/history`.)
 - **Server-config reason codes** — reject/dispute reasons are a curated client list; the backend accepts a
   free-form `reason_code`. A `GET reasons` config endpoint would remove the client list.

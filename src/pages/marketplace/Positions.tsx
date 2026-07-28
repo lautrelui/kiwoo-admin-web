@@ -16,15 +16,15 @@ import {
   marketplaceError,
   marketplaceParticipantService as svc,
 } from "@/services/marketplaceParticipantService";
-import type { OfferView } from "@/types/marketplace";
+import type { PositionView } from "@/types/marketplace";
 
-// M4A-2 · offer MANAGEMENT. The participant publishes/adjusts capacity + operational constraints — NEVER
+// M4A-2 · position MANAGEMENT. The participant publishes/adjusts capacity + operational constraints — NEVER
 // pricing. Client validation is usability-only; the backend is authoritative and its messages are shown
 // verbatim. No participant id is ever sent (server resolves identity). All actions guard double-submit.
 
-interface OfferForm {
+interface PositionForm {
   currency: string;
-  declared_liquidity: string;
+  declared_capacity: string;
   min_amount: string;
   max_amount: string;
   participant_cost_bps: string;
@@ -32,13 +32,13 @@ interface OfferForm {
   location_label: string;
 }
 
-const EMPTY: OfferForm = { currency: "HTG", declared_liquidity: "", min_amount: "", max_amount: "", participant_cost_bps: "", payout_method: "", location_label: "" };
+const EMPTY: PositionForm = { currency: "HTG", declared_capacity: "", min_amount: "", max_amount: "", participant_cost_bps: "", payout_method: "", location_label: "" };
 
 /** Client-side usability validation. Returns a field→message map (empty = ok). */
-function validate(f: OfferForm): Record<string, string> {
+function validate(f: PositionForm): Record<string, string> {
   const e: Record<string, string> = {};
-  const declared = Number(f.declared_liquidity);
-  if (!f.declared_liquidity || !Number.isFinite(declared) || declared <= 0) e.declared_liquidity = "Enter a positive declared amount.";
+  const declared = Number(f.declared_capacity);
+  if (!f.declared_capacity || !Number.isFinite(declared) || declared <= 0) e.declared_capacity = "Enter a positive declared amount.";
   if (!f.currency.trim()) e.currency = "Currency is required.";
   const min = f.min_amount ? Number(f.min_amount) : 0;
   const max = f.max_amount ? Number(f.max_amount) : 0;
@@ -52,13 +52,13 @@ function validate(f: OfferForm): Record<string, string> {
   return e;
 }
 
-export default function ParticipantOffers() {
+export default function ParticipantPositions() {
   const online = useOnline();
-  const res = useAsyncResource(() => svc.listOffers(), []);
+  const res = useAsyncResource(() => svc.listPositions(), []);
   useLifecycleRefresh(res.reload);
-  const offers = res.data ?? [];
+  const positions = res.data ?? [];
 
-  const [modal, setModal] = useState<null | { mode: "create" | "edit"; ref?: string; form: OfferForm }>(null);
+  const [modal, setModal] = useState<null | { mode: "create" | "edit"; ref?: string; form: PositionForm }>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [banner, setBanner] = useState<string | null>(null);
@@ -87,7 +87,7 @@ export default function ParticipantOffers() {
     const f = modal.form;
     const payload = {
       currency: f.currency.trim(),
-      declared_liquidity: f.declared_liquidity,
+      declared_capacity: f.declared_capacity,
       min_amount: f.min_amount || undefined,
       max_amount: f.max_amount || undefined,
       participant_cost_bps: f.participant_cost_bps ? Number(f.participant_cost_bps) : undefined,
@@ -95,20 +95,20 @@ export default function ParticipantOffers() {
       location_label: f.location_label || undefined,
     };
     await run(async () => {
-      if (modal.mode === "create") await svc.createOffer(payload);
-      else await svc.updateOffer(modal.ref!, payload);
+      if (modal.mode === "create") await svc.createPosition(payload);
+      else await svc.updatePosition(modal.ref!, payload);
       setModal(null);
     });
   }
 
   return (
     <ParticipantPage
-      title="Offer management"
+      title="Position management"
       subtitle="Publish and adjust payout capacity + constraints. Kiwoo sets the customer price — not you."
       actions={
         <div className="flex gap-2">
           <Button variant="secondary" size="sm" onClick={res.reload} disabled={res.loading}>Refresh</Button>
-          <Button size="sm" onClick={() => { setErrors({}); setModal({ mode: "create", form: { ...EMPTY } }); }} disabled={!online}>New offer</Button>
+          <Button size="sm" onClick={() => { setErrors({}); setModal({ mode: "create", form: { ...EMPTY } }); }} disabled={!online}>New position</Button>
         </div>
       }
     >
@@ -120,28 +120,28 @@ export default function ParticipantOffers() {
           <ul className="list-disc space-y-1 pl-4">
             <li>Kiwoo determines the customer transaction price; your cost input is not the customer fee and does not guarantee selection.</li>
             <li>Accepted quote economics cannot be changed.</li>
-            <li>Declared liquidity cannot be reduced below locked + fulfilled capacity.</li>
-            <li>An offer with active locks cannot be closed. Pausing prevents new matching but does not cancel existing obligations.</li>
+            <li>Declared capacity cannot be reduced below locked + fulfilled capacity.</li>
+            <li>A position with active locks cannot be closed. Pausing prevents new matching but does not cancel existing obligations.</li>
           </ul>
         </Card>
 
-        {res.loading && offers.length === 0 ? (
+        {res.loading && positions.length === 0 ? (
           <Card className="p-6 text-center text-sm text-ink-400">Loading…</Card>
-        ) : offers.length === 0 ? (
-          <Card className="p-6 text-center text-sm text-ink-400">No offers yet. Create one to declare payout capacity.</Card>
+        ) : positions.length === 0 ? (
+          <Card className="p-6 text-center text-sm text-ink-400">No positions yet. Create one to declare payout capacity.</Card>
         ) : (
           <div className="space-y-3">
-            {offers.map((o) => (
-              <OfferRow
-                key={o.offer_ref}
+            {positions.map((o) => (
+              <PositionRow
+                key={o.position_ref}
                 o={o}
                 busy={busy}
                 online={online}
-                onEdit={() => { setErrors({}); setModal({ mode: "edit", ref: o.offer_ref, form: toForm(o) }); }}
-                onAdjust={(kind) => setAdjust({ ref: o.offer_ref, kind, amount: "" })}
-                onPause={() => setConfirm({ title: "Pause offer", message: `Pause ${o.offer_ref}? New matching stops; existing obligations are unaffected.`, run: () => run(() => svc.pauseOffer(o.offer_ref)) })}
-                onResume={() => run(() => svc.resumeOffer(o.offer_ref))}
-                onClose={() => setConfirm({ title: "Close offer", message: `Close ${o.offer_ref}? Only allowed when no capacity is locked.`, run: () => run(() => svc.closeOffer(o.offer_ref)) })}
+                onEdit={() => { setErrors({}); setModal({ mode: "edit", ref: o.position_ref, form: toForm(o) }); }}
+                onAdjust={(kind) => setAdjust({ ref: o.position_ref, kind, amount: "" })}
+                onPause={() => setConfirm({ title: "Pause position", message: `Pause ${o.position_ref}? New matching stops; existing obligations are unaffected.`, run: () => run(() => svc.pausePosition(o.position_ref)) })}
+                onResume={() => run(() => svc.resumePosition(o.position_ref))}
+                onClose={() => setConfirm({ title: "Close position", message: `Close ${o.position_ref}? Only allowed when no capacity is locked.`, run: () => run(() => svc.closePosition(o.position_ref)) })}
               />
             ))}
           </div>
@@ -152,12 +152,12 @@ export default function ParticipantOffers() {
       <Modal
         open={!!modal}
         onClose={() => setModal(null)}
-        title={modal?.mode === "create" ? "New liquidity offer" : "Edit offer constraints"}
+        title={modal?.mode === "create" ? "New liquidity position" : "Edit position constraints"}
         size="lg"
         footer={
           <>
             <Button variant="secondary" onClick={() => setModal(null)} disabled={busy}>Cancel</Button>
-            <Button onClick={submitForm} loading={busy}>{modal?.mode === "create" ? "Create offer" : "Save changes"}</Button>
+            <Button onClick={submitForm} loading={busy}>{modal?.mode === "create" ? "Create position" : "Save changes"}</Button>
           </>
         }
       >
@@ -166,8 +166,8 @@ export default function ParticipantOffers() {
             <FormInput label="Currency" name="currency" value={modal.form.currency} error={errors.currency}
               onChange={(e) => setModal({ ...modal, form: { ...modal.form, currency: e.target.value } })}
               disabled={modal.mode === "edit"} hint={modal.mode === "edit" ? "Currency is fixed after creation." : undefined} />
-            <FormInput label="Declared liquidity" name="declared" value={modal.form.declared_liquidity} error={errors.declared_liquidity}
-              onChange={(e) => setModal({ ...modal, form: { ...modal.form, declared_liquidity: e.target.value } })}
+            <FormInput label="Declared liquidity" name="declared" value={modal.form.declared_capacity} error={errors.declared_capacity}
+              onChange={(e) => setModal({ ...modal, form: { ...modal.form, declared_capacity: e.target.value } })}
               disabled={modal.mode === "edit"} hint={modal.mode === "edit" ? "Adjust capacity with Increase / Reduce." : "Total capacity to declare."} inputMode="decimal" />
             <FormInput label="Minimum amount" name="min" value={modal.form.min_amount} error={errors.min_amount}
               onChange={(e) => setModal({ ...modal, form: { ...modal.form, min_amount: e.target.value } })} inputMode="decimal" />
@@ -188,7 +188,7 @@ export default function ParticipantOffers() {
       <Modal
         open={!!adjust}
         onClose={() => setAdjust(null)}
-        title={adjust?.kind === "increase" ? "Increase declared liquidity" : "Reduce declared liquidity"}
+        title={adjust?.kind === "increase" ? "Increase declared capacity" : "Reduce declared capacity"}
         footer={
           <>
             <Button variant="secondary" onClick={() => setAdjust(null)} disabled={busy}>Cancel</Button>
@@ -198,8 +198,8 @@ export default function ParticipantOffers() {
                 const amt = Number(adjust.amount);
                 if (!Number.isFinite(amt) || amt <= 0) return;
                 await run(async () => {
-                  if (adjust.kind === "increase") await svc.increaseOffer(adjust.ref, adjust.amount);
-                  else await svc.decreaseOffer(adjust.ref, adjust.amount);
+                  if (adjust.kind === "increase") await svc.increasePosition(adjust.ref, adjust.amount);
+                  else await svc.decreasePosition(adjust.ref, adjust.amount);
                   setAdjust(null);
                 });
               }}
@@ -233,10 +233,10 @@ export default function ParticipantOffers() {
   );
 }
 
-function toForm(o: OfferView): OfferForm {
+function toForm(o: PositionView): PositionForm {
   return {
     currency: o.currency,
-    declared_liquidity: o.declared_liquidity,
+    declared_capacity: o.declared_capacity,
     min_amount: o.min_amount,
     max_amount: o.max_amount,
     participant_cost_bps: String(o.participant_cost_bps ?? ""),
@@ -245,10 +245,10 @@ function toForm(o: OfferView): OfferForm {
   };
 }
 
-function OfferRow({
+function PositionRow({
   o, busy, online, onEdit, onAdjust, onPause, onResume, onClose,
 }: {
-  o: OfferView;
+  o: PositionView;
   busy: boolean;
   online: boolean;
   onEdit: () => void;
@@ -263,10 +263,10 @@ function OfferRow({
     <Card className="p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <div className="font-mono text-xs text-ink-500">{o.offer_ref}</div>
+          <div className="font-mono text-xs text-ink-500">{o.position_ref}</div>
           <div className="text-sm font-medium text-ink-900">
-            {formatMoney(o.declared_liquidity, o.currency)} declared ·{" "}
-            <span className="text-ink-500">{formatMoney(o.available_liquidity, o.currency)} available · {o.status}</span>
+            {formatMoney(o.declared_capacity, o.currency)} declared ·{" "}
+            <span className="text-ink-500">{formatMoney(o.available_capacity, o.currency)} available · {o.status}</span>
           </div>
         </div>
         <div className="flex flex-wrap gap-2">

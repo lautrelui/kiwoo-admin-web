@@ -11,10 +11,10 @@ const s = (v: unknown): string => (v == null ? "0" : String(v));
 const arr = <T,>(v: unknown): T[] => (Array.isArray(v) ? (v as T[]) : []);
 
 export interface OpsSummary {
-  declared_liquidity: string;
+  declared_capacity: string;
   available_liquidity: string;
-  locked_liquidity: string;
-  fulfilled_liquidity: string;
+  locked_capacity: string;
+  fulfilled_capacity: string;
   active_participants: number;
   active_offers: number;
   paused_offers: number;
@@ -33,10 +33,10 @@ export interface OpsSummary {
 export function parseSummary(v: unknown): OpsSummary {
   const o = (v ?? {}) as Record<string, unknown>;
   return {
-    declared_liquidity: s(o.declared_liquidity),
+    declared_capacity: s(o.declared_capacity),
     available_liquidity: s(o.available_liquidity),
-    locked_liquidity: s(o.locked_liquidity),
-    fulfilled_liquidity: s(o.fulfilled_liquidity),
+    locked_capacity: s(o.locked_capacity),
+    fulfilled_capacity: s(o.fulfilled_capacity),
     active_participants: n(o.active_participants),
     active_offers: n(o.active_offers),
     paused_offers: n(o.paused_offers),
@@ -100,10 +100,10 @@ export function parseSla(v: unknown): OpsSla {
 
 export interface OpsParticipant {
   participant_id: number;
-  declared_liquidity: string;
-  available_liquidity: string;
-  locked_liquidity: string;
-  fulfilled_liquidity: string;
+  declared_capacity: string;
+  available_capacity: string;
+  locked_capacity: string;
+  fulfilled_capacity: string;
   pending_obligations: number;
   accepted: number;
   rejected: number;
@@ -137,8 +137,8 @@ export function parseAlerts(v: unknown): { page: number; page_size: number; item
 export interface LiquidityBreakdown {
   total: { declared: string; locked: string; fulfilled: string; available: string };
   by_currency: Array<{ currency: string; declared: string; locked: string; fulfilled: string; available: string }>;
-  by_service_area: Array<{ service_area: string; offers: number; declared: string; locked: string; fulfilled: string; available: string }>;
-  by_offer_status: Array<{ status: string; offers: number }>;
+  by_service_area: Array<{ service_area: string; positions: number; declared: string; locked: string; fulfilled: string; available: string }>;
+  by_position_status: Array<{ status: string; positions: number }>;
 }
 export function parseLiquidity(v: unknown): LiquidityBreakdown {
   const o = (v ?? {}) as Partial<LiquidityBreakdown>;
@@ -146,7 +146,7 @@ export function parseLiquidity(v: unknown): LiquidityBreakdown {
     total: o.total ?? { declared: "0", locked: "0", fulfilled: "0", available: "0" },
     by_currency: arr(o.by_currency),
     by_service_area: arr(o.by_service_area),
-    by_offer_status: arr(o.by_offer_status),
+    by_position_status: arr(o.by_position_status),
   };
 }
 

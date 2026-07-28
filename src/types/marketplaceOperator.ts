@@ -91,7 +91,7 @@ export interface OperatorCaseContext {
     outcome: string | null;
   };
   liquidity: {
-    matched_offer_ref: string | null;
+    matched_position_ref: string | null;
     lock_present: boolean;
     lock_consumed: boolean;
     lock_released: boolean;

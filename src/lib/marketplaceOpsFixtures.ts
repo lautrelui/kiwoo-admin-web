@@ -14,7 +14,7 @@ import type {
 import type { OpsSearchRow } from "@/types/marketplaceOps";
 
 export const fxSummaryEmpty: OpsSummary = {
-  declared_liquidity: "0", available_liquidity: "0", locked_liquidity: "0", fulfilled_liquidity: "0",
+  declared_capacity: "0", available_liquidity: "0", locked_capacity: "0", fulfilled_capacity: "0",
   active_participants: 0, active_offers: 0, paused_offers: 0, pending_participant_acceptances: 0,
   ready_for_collection: 0, awaiting_customer_confirmation: 0, manual_review_cases: 0, open_disputes: 0,
   pending_compensations: 0, completed_settlements: 0, completed_compensations: 0,
@@ -22,7 +22,7 @@ export const fxSummaryEmpty: OpsSummary = {
 };
 
 export const fxSummary: OpsSummary = {
-  declared_liquidity: "50000", available_liquidity: "38900", locked_liquidity: "9000", fulfilled_liquidity: "2100",
+  declared_capacity: "50000", available_liquidity: "38900", locked_capacity: "9000", fulfilled_capacity: "2100",
   active_participants: 6, active_offers: 8, paused_offers: 2, pending_participant_acceptances: 3,
   ready_for_collection: 2, awaiting_customer_confirmation: 4, manual_review_cases: 2, open_disputes: 1,
   pending_compensations: 1, completed_settlements: 120, completed_compensations: 4,
@@ -53,19 +53,19 @@ export const fxLiquidity: LiquidityBreakdown = {
   total: { declared: "50000", locked: "9000", fulfilled: "2100", available: "38900" },
   by_currency: [{ currency: "HTG", declared: "50000", locked: "9000", fulfilled: "2100", available: "38900" }],
   by_service_area: [
-    { service_area: "Pétionville", offers: 4, declared: "30000", locked: "6000", fulfilled: "1500", available: "22500" },
-    { service_area: "Delmas", offers: 2, declared: "12000", locked: "12000", fulfilled: "0", available: "0" },
-    { service_area: "unspecified", offers: 2, declared: "8000", locked: "0", fulfilled: "600", available: "7400" },
+    { service_area: "Pétionville", positions: 4, declared: "30000", locked: "6000", fulfilled: "1500", available: "22500" },
+    { service_area: "Delmas", positions: 2, declared: "12000", locked: "12000", fulfilled: "0", available: "0" },
+    { service_area: "unspecified", positions: 2, declared: "8000", locked: "0", fulfilled: "600", available: "7400" },
   ],
-  by_offer_status: [{ status: "ACTIVE", offers: 8 }, { status: "PAUSED", offers: 2 }],
+  by_position_status: [{ status: "ACTIVE", positions: 8 }, { status: "PAUSED", positions: 2 }],
 };
 export const fxLiquidityEmpty: LiquidityBreakdown = {
   total: { declared: "0", locked: "0", fulfilled: "0", available: "0" },
-  by_currency: [], by_service_area: [], by_offer_status: [],
+  by_currency: [], by_service_area: [], by_position_status: [],
 };
 
 export const fxParticipant: OpsParticipant = {
-  participant_id: 42, declared_liquidity: "10000", available_liquidity: "7000", locked_liquidity: "2000", fulfilled_liquidity: "1000",
+  participant_id: 42, declared_capacity: "10000", available_capacity: "7000", locked_capacity: "2000", fulfilled_capacity: "1000",
   pending_obligations: 1, accepted: 5, rejected: 1, timed_out: 0, disputed: 1, settled: 20, compensated: 0,
 };
 

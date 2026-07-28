@@ -44,7 +44,7 @@ import ScenarioRunDetail from "@/pages/ops/ScenarioRunDetail";
 // route is additionally gated server-side by MARKETPLACE_PARTICIPANT_ENABLED (fail-closed while dark).
 import ParticipantOverview from "@/pages/marketplace/Overview";
 import ParticipantLiquidity from "@/pages/marketplace/Liquidity";
-import ParticipantOffers from "@/pages/marketplace/Offers";
+import ParticipantPositions from "@/pages/marketplace/Positions";
 import ParticipantObligations from "@/pages/marketplace/Obligations";
 import ObligationDetail from "@/pages/marketplace/ObligationDetail";
 import ParticipantDisputes from "@/pages/marketplace/Disputes";
@@ -364,8 +364,8 @@ export function AppRoutes() {
         element={<ProtectedRoute roles={PARTICIPANT_ROLE_GUARD}><ParticipantLiquidity /></ProtectedRoute>}
       />
       <Route
-        path="/participant/marketplace/offers"
-        element={<ProtectedRoute roles={PARTICIPANT_ROLE_GUARD}><ParticipantOffers /></ProtectedRoute>}
+        path="/participant/marketplace/positions"
+        element={<ProtectedRoute roles={PARTICIPANT_ROLE_GUARD}><ParticipantPositions /></ProtectedRoute>}
       />
       <Route
         path="/participant/marketplace/obligations"
