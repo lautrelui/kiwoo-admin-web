@@ -188,7 +188,7 @@ export default function ParticipantPositions() {
       <Modal
         open={!!adjust}
         onClose={() => setAdjust(null)}
-        title={adjust?.kind === "increase" ? "Increase declared liquidity" : "Reduce declared liquidity"}
+        title={adjust?.kind === "increase" ? "Increase declared capacity" : "Reduce declared capacity"}
         footer={
           <>
             <Button variant="secondary" onClick={() => setAdjust(null)} disabled={busy}>Cancel</Button>
