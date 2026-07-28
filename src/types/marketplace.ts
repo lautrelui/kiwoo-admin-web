@@ -43,21 +43,25 @@ export function toMarketplaceState(s: unknown): MarketplaceState {
   return "UNKNOWN";
 }
 
-/** Offer status is a small, closed set; unknown → the raw string is kept for display only. */
-export type OfferStatus = "ACTIVE" | "PAUSED" | "WITHDRAWN" | string;
+/** Position status is a small, closed set; unknown → the raw string is kept for display only. */
+export type PositionStatus = "ACTIVE" | "PAUSED" | "WITHDRAWN" | string;
 
-/** A participant's own liquidity offer (declared/locked/fulfilled/available — server-derived). */
-export interface OfferView {
-  offer_ref: string;
+/**
+ * A partner's own liquidity POSITION (declared/locked/fulfilled/available CAPACITY — server-derived).
+ * Mirrors the deployed backend position view (`MarketplacePartnerLiquidityPosition`); the wire uses the
+ * `*_capacity` field names and `position_ref`.
+ */
+export interface PositionView {
+  position_ref: string;
   currency: string;
-  status: OfferStatus;
-  declared_liquidity: string;
-  locked_liquidity: string;
-  fulfilled_liquidity: string;
-  available_liquidity: string;
+  status: PositionStatus;
+  declared_capacity: string;
+  locked_capacity: string;
+  fulfilled_capacity: string;
+  available_capacity: string;
   min_amount: string;
   max_amount: string;
-  participant_cost_bps: number; // participant's own cost INPUT (not the customer price)
+  participant_cost_bps: number; // partner's own cost INPUT (not the customer price)
   payout_method: string | null;
   location_label: string | null;
   updated_at: string;
@@ -76,15 +80,19 @@ export interface ObligationView {
   qr_token: string | null; // present only once READY_FOR_COLLECTION
 }
 
-/** Server-aggregated operational overview (authoritative — the client never sums rows for money). */
+/**
+ * Server-aggregated operational overview (authoritative — the client never sums rows for money).
+ * NOTE: the deployed overview endpoint keeps the legacy wire keys `available_liquidity`, `active_offers`,
+ * and `paused_offers` (they were NOT renamed backend-side); capacity totals use the `*_capacity` keys.
+ */
 export interface ParticipantOverview {
   currency: string;
-  declared_liquidity: string;
-  available_liquidity: string;
-  locked_liquidity: string;
-  fulfilled_liquidity: string;
-  active_offers: number;
-  paused_offers: number;
+  declared_capacity: string;
+  available_liquidity: string; // wire key kept by the deployed overview endpoint
+  locked_capacity: string;
+  fulfilled_capacity: string;
+  active_offers: number; // wire key kept by the deployed overview endpoint (count of active positions)
+  paused_offers: number; // wire key kept by the deployed overview endpoint (count of paused positions)
   pending_obligations: number;
   ready_for_collection: number;
   awaiting_customer_confirmation: number;
@@ -137,15 +145,15 @@ const num = (v: unknown): number => {
 /** Money strings are kept as strings (never parsed to float) so no client rounding can occur. */
 const money = (v: unknown): string => (v == null || v === "" ? "0" : String(v));
 
-export function parseOffer(o: Record<string, unknown>): OfferView {
+export function parsePosition(o: Record<string, unknown>): PositionView {
   return {
-    offer_ref: s(o.offer_ref),
+    position_ref: s(o.position_ref),
     currency: s(o.currency) || "HTG",
     status: s(o.status),
-    declared_liquidity: money(o.declared_liquidity),
-    locked_liquidity: money(o.locked_liquidity),
-    fulfilled_liquidity: money(o.fulfilled_liquidity),
-    available_liquidity: money(o.available_liquidity),
+    declared_capacity: money(o.declared_capacity),
+    locked_capacity: money(o.locked_capacity),
+    fulfilled_capacity: money(o.fulfilled_capacity),
+    available_capacity: money(o.available_capacity),
     min_amount: money(o.min_amount),
     max_amount: money(o.max_amount),
     participant_cost_bps: num(o.participant_cost_bps),
@@ -172,10 +180,10 @@ export function parseObligation(o: Record<string, unknown>): ObligationView {
 export function parseOverview(o: Record<string, unknown>): ParticipantOverview {
   return {
     currency: s(o.currency) || "HTG",
-    declared_liquidity: money(o.declared_liquidity),
+    declared_capacity: money(o.declared_capacity),
     available_liquidity: money(o.available_liquidity),
-    locked_liquidity: money(o.locked_liquidity),
-    fulfilled_liquidity: money(o.fulfilled_liquidity),
+    locked_capacity: money(o.locked_capacity),
+    fulfilled_capacity: money(o.fulfilled_capacity),
     active_offers: num(o.active_offers),
     paused_offers: num(o.paused_offers),
     pending_obligations: num(o.pending_obligations),
