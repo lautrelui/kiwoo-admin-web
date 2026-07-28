@@ -131,8 +131,8 @@ export function timeRemaining(deadline: string | null | undefined, nowMs = Date.
   return { expired: false, text: `${mins}m ${secs}s left` };
 }
 
-/** Map an offer status to a badge tone. */
-export function offerTone(status: string): StateTone {
+/** Map a position status to a badge tone. */
+export function positionTone(status: string): StateTone {
   if (status === "ACTIVE") return "good";
   if (status === "PAUSED") return "warn";
   if (status === "WITHDRAWN") return "muted";
