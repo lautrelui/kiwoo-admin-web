@@ -71,8 +71,20 @@ export interface PartnerApplication {
   created_at: string;
   updated_at: string;
   availability: PartnerAvailability;
+  /**
+   * P0 · The four DISTINCT readiness facts, so no single status implies end-to-end readiness.
+   * business_active = onboarding complete + not suspended; discoverable/executable additionally
+   * require the participant/execution rails (dark today). Optional for back-compat with older payloads.
+   */
+  readiness?: PartnerReadiness;
   user: PartnerUser;
   compliance: PartnerCompliance;
+}
+
+export interface PartnerReadiness {
+  business_active: boolean;
+  discoverable: boolean;
+  executable: boolean;
 }
 
 export interface PartnerStats {

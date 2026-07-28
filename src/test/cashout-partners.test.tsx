@@ -131,6 +131,23 @@ describe("Partner directory never fabricates activity", () => {
     expect(await screen.findByText("Marie's Kiosk")).toBeInTheDocument();
     expect(screen.getByText("AVAILABLE")).toBeInTheDocument();
   });
+
+  it("P0: shows distinct Business Active / Discoverable / Executable columns; ACTIVE ≠ discoverable/executable while dark", async () => {
+    const stats = { current_requests: 0, completed_requests: 0, completed_payouts: "0", acceptance_rate: null, avg_response_time_seconds: null, customer_disputes: 0, customer_confirmations: 0, marketplace_activity: false };
+    listPartners.mockResolvedValue({ total: 1, items: [{
+      ...fxApp("MARKETPLACE_ACTIVE", { availability: "AVAILABLE", readiness: { business_active: true, discoverable: false, executable: false } }),
+      stats,
+    }] });
+    render(<MemoryRouter><PartnerDirectory /></MemoryRouter>);
+    expect(await screen.findByText("Marie's Kiosk")).toBeInTheDocument();
+    // The three distinct readiness columns exist as separate headers.
+    expect(screen.getByRole("columnheader", { name: "Business Active" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Discoverable" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Executable" })).toBeInTheDocument();
+    // Business Active = Yes, but Discoverable + Executable = No (rails dark) → two "No" pills.
+    expect(screen.getByText("Yes")).toBeInTheDocument();
+    expect(screen.getAllByText("No").length).toBeGreaterThanOrEqual(2);
+  });
 });
 
 describe("RBAC", () => {

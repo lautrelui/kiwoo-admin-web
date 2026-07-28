@@ -42,6 +42,18 @@ export default function PartnerDetail() {
             <StatusBadge status={p.availability} />
           </div>
 
+          {/* P0 · The four DISTINCT readiness facts — onboarding status alone never means customer-ready. */}
+          <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <ReadyFact ok={p.readiness?.business_active ?? (p.status === "MARKETPLACE_ACTIVE")}
+              label="Business Active" hint="Onboarding complete and approved to operate when the Marketplace rail is enabled." />
+            <ReadyFact ok={p.readiness?.discoverable ?? false}
+              label="Discoverable" hint="The partner can currently be considered by customer matching." />
+            <ReadyFact ok={p.readiness?.executable ?? false}
+              label="Executable" hint="A matched customer transaction can currently proceed through reservation and completion." />
+            <ReadyFact ok={p.availability === "AVAILABLE"} neutral
+              label="Available" hint="The partner's own declared open/closed preference (operational, not readiness)." />
+          </div>
+
           {!p.stats.marketplace_activity && (
             <div className="mb-5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
               No Marketplace activity yet — execution is not enabled, so request/payout/dispute statistics are zero.
@@ -102,6 +114,24 @@ function F({ label, v, mono }: { label: string; v?: string | null; mono?: boolea
     <div>
       <dt className="text-xs uppercase tracking-wide text-ink-400">{label}</dt>
       <dd className={mono ? "font-mono text-xs text-ink-800 break-all" : "text-ink-800"}>{v || "—"}</dd>
+    </div>
+  );
+}
+
+/** P0 · One readiness fact with a Yes/No pill and an explanatory tooltip. `neutral` = an operational
+ *  preference (Availability) rather than a readiness gate. */
+function ReadyFact({ ok, label, hint, neutral }: { ok: boolean; label: string; hint: string; neutral?: boolean }) {
+  const onColor = neutral ? "bg-sky-50 text-sky-700" : "bg-emerald-50 text-emerald-700";
+  const onDot = neutral ? "bg-sky-500" : "bg-emerald-500";
+  return (
+    <div className="rounded-lg border border-ink-100 bg-white px-3 py-2" title={hint}>
+      <div className="text-xs uppercase tracking-wide text-ink-400">{label}</div>
+      <div className="mt-1">
+        <span className={"inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium " + (ok ? onColor : "bg-slate-100 text-slate-500")}>
+          <span className={"h-1.5 w-1.5 rounded-full " + (ok ? onDot : "bg-slate-400")} />
+          {ok ? "Yes" : "No"}
+        </span>
+      </div>
     </div>
   );
 }
