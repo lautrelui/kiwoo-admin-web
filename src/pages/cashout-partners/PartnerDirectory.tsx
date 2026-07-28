@@ -11,6 +11,25 @@ import { formatDateTime } from "@/lib/utils";
 import { cashoutPartnerService as svc } from "@/services/cashoutPartnerService";
 import type { PartnerDirectoryItem } from "@/types/cashoutPartner";
 
+/**
+ * P0 · A truthful Yes/No readiness indicator. Business Active ≠ Discoverable ≠ Executable, so no single
+ * column (e.g. Status = MARKETPLACE_ACTIVE) can be read as "customers can transact with this partner".
+ */
+function ReadyCell({ value, title }: { value: boolean; title: string }) {
+  return (
+    <span
+      title={title}
+      className={
+        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium " +
+        (value ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500")
+      }
+    >
+      <span className={"h-1.5 w-1.5 rounded-full " + (value ? "bg-emerald-500" : "bg-slate-400")} />
+      {value ? "Yes" : "No"}
+    </span>
+  );
+}
+
 export default function PartnerDirectory() {
   const navigate = useNavigate();
   const [rows, setRows] = useState<PartnerDirectoryItem[]>([]);
@@ -50,6 +69,16 @@ export default function PartnerDirectory() {
             columns={[
               { key: "name", header: "Name", render: (r) => r.display_name || r.user.name || `User #${r.user_id}` },
               { key: "status", header: "Status", render: (r) => <StatusBadge status={r.status} /> },
+              // P0 · distinct readiness — onboarding status alone never means customer-ready.
+              { key: "business_active", header: "Business Active", render: (r) => (
+                <ReadyCell value={r.readiness?.business_active ?? (r.status === "MARKETPLACE_ACTIVE")}
+                  title="Onboarding complete and approved to operate once the Marketplace rail is enabled." /> ) },
+              { key: "discoverable", header: "Discoverable", render: (r) => (
+                <ReadyCell value={r.readiness?.discoverable ?? false}
+                  title="Can currently be considered by customer matching (participant rail on)." /> ) },
+              { key: "executable", header: "Executable", render: (r) => (
+                <ReadyCell value={r.readiness?.executable ?? false}
+                  title="A matched customer transaction can currently proceed through reservation and completion." /> ) },
               { key: "availability", header: "Availability", render: (r) => <StatusBadge status={r.availability} /> },
               { key: "capacity", header: "Capacity", render: (r) => (r.typical_cash_available ? `${r.typical_cash_available} HTG` : "—") },
               { key: "area", header: "Operating area", render: (r) => [r.neighborhood, r.operating_city].filter(Boolean).join(", ") || "—" },
