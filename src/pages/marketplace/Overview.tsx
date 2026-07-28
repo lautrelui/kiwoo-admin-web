@@ -56,15 +56,15 @@ export default function ParticipantOverview() {
 
             {/* Liquidity — kept distinct, never merged into one balance */}
             <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-              <StatCard label="Declared liquidity" value={formatMoney(o?.declared_liquidity, cur)} />
-              <StatCard label="Available liquidity" value={formatMoney(o?.available_liquidity, cur)} />
-              <StatCard label="Locked liquidity" value={formatMoney(o?.locked_liquidity, cur)} />
-              <StatCard label="Fulfilled liquidity" value={formatMoney(o?.fulfilled_liquidity, cur)} />
+              <StatCard label="Declared liquidity" value={formatMoney(o?.declared_capacity, cur)} />
+              <StatCard label="Available capacity" value={formatMoney(o?.available_liquidity, cur)} />
+              <StatCard label="Locked liquidity" value={formatMoney(o?.locked_capacity, cur)} />
+              <StatCard label="Fulfilled liquidity" value={formatMoney(o?.fulfilled_capacity, cur)} />
             </div>
 
-            {/* Offer + obligation counts */}
+            {/* Position + obligation counts */}
             <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-              <StatCard label="Active offers" value={o?.active_offers ?? 0} />
+              <StatCard label="Active positions" value={o?.active_offers ?? 0} />
               <StatCard label="Pending obligations" value={o?.pending_obligations ?? 0} />
               <StatCard label="Ready for collection" value={o?.ready_for_collection ?? 0} />
               <StatCard label="Awaiting customer" value={o?.awaiting_customer_confirmation ?? 0} />

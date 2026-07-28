@@ -55,11 +55,11 @@ export default function OpsDashboard() {
             {/* 1 · Overview KPIs */}
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
               <Kpi label="Active participants" value={fmtInt(s?.active_participants ?? 0)} />
-              <Kpi label="Active offers" value={fmtInt(s?.active_offers ?? 0)} />
-              <Kpi label="Declared liquidity" value={formatMoney(s?.declared_liquidity, "HTG")} />
-              <Kpi label="Available liquidity" value={formatMoney(s?.available_liquidity, "HTG")} />
-              <Kpi label="Locked liquidity" value={formatMoney(s?.locked_liquidity, "HTG")} />
-              <Kpi label="Fulfilled liquidity" value={formatMoney(s?.fulfilled_liquidity, "HTG")} />
+              <Kpi label="Active positions" value={fmtInt(s?.active_offers ?? 0)} />
+              <Kpi label="Declared liquidity" value={formatMoney(s?.declared_capacity, "HTG")} />
+              <Kpi label="Available capacity" value={formatMoney(s?.available_liquidity, "HTG")} />
+              <Kpi label="Locked liquidity" value={formatMoney(s?.locked_capacity, "HTG")} />
+              <Kpi label="Fulfilled liquidity" value={formatMoney(s?.fulfilled_capacity, "HTG")} />
               <Kpi label="Pending acceptance" value={fmtInt(s?.pending_participant_acceptances ?? 0)} to="/operator/marketplace" />
               <Kpi label="Ready for collection" value={fmtInt(s?.ready_for_collection ?? 0)} />
               <Kpi label="Awaiting customer" value={fmtInt(s?.awaiting_customer_confirmation ?? 0)} />
@@ -161,7 +161,7 @@ function Liquidity() {
               { key: "area", header: "Area", render: (a: typeof d.by_service_area[number]) => <span className={cn(isLowLiquidity(a.available) && "text-red-600 font-medium")}>{a.service_area}{isLowLiquidity(a.available) && " · low"}</span> },
               { key: "avail", header: "Available", render: (a: typeof d.by_service_area[number]) => formatMoney(a.available, "HTG") },
               { key: "locked", header: "Locked", render: (a: typeof d.by_service_area[number]) => formatMoney(a.locked, "HTG") },
-              { key: "offers", header: "Offers", render: (a: typeof d.by_service_area[number]) => a.offers },
+              { key: "positions", header: "Positions", render: (a: typeof d.by_service_area[number]) => a.positions },
             ]}
             rows={d.by_service_area}
             rowKey={(a) => a.service_area}
@@ -188,7 +188,7 @@ function ParticipantHealth() {
       <DataTable
         columns={[
           { key: "id", header: "Participant", render: (p: OpsParticipant) => <span className="font-medium">#{p.participant_id}</span> },
-          { key: "avail", header: "Available", render: (p: OpsParticipant) => formatMoney(p.available_liquidity, "HTG") },
+          { key: "avail", header: "Available", render: (p: OpsParticipant) => formatMoney(p.available_capacity, "HTG") },
           { key: "obl", header: "Active", render: (p: OpsParticipant) => p.pending_obligations + p.accepted },
           { key: "acc", header: "Accepted", render: (p: OpsParticipant) => p.accepted },
           { key: "rej", header: "Rejected", render: (p: OpsParticipant) => p.rejected },
