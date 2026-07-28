@@ -24,10 +24,10 @@ beforeEach(() => {
 
 describe("route + envelope", () => {
   it("overview hits participant/marketplace/overview and unwraps .data.data", async () => {
-    get.mockResolvedValueOnce(envelope({ currency: "HTG", declared_liquidity: "5000", active_offers: 2 }));
+    get.mockResolvedValueOnce(envelope({ currency: "HTG", declared_capacity: "5000", active_offers: 2 }));
     const o = await svc.overview();
     expect(get).toHaveBeenCalledWith("participant/marketplace/overview");
-    expect(o.declared_liquidity).toBe("5000");
+    expect(o.declared_capacity).toBe("5000");
     expect(o.active_offers).toBe(2);
   });
 
@@ -40,9 +40,9 @@ describe("route + envelope", () => {
 });
 
 describe("participant id is NEVER authority-bearing", () => {
-  it("createOffer body has no participant/user id field", async () => {
-    post.mockResolvedValueOnce(envelope({ offer_ref: "OFR-1" }));
-    await svc.createOffer({ currency: "HTG", declared_liquidity: "500" });
+  it("createPosition body has no participant/user id field", async () => {
+    post.mockResolvedValueOnce(envelope({ position_ref: "POS-1" }));
+    await svc.createPosition({ currency: "HTG", declared_capacity: "500" });
     const [, body] = post.mock.calls[0];
     const keys = Object.keys(body as Record<string, unknown>);
     expect(keys).not.toContain("participant_id");

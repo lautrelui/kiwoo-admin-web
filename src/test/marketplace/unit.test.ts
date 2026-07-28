@@ -74,7 +74,7 @@ describe("money formatting (no float reparsing)", () => {
 describe("DTO parsing", () => {
   it("overview parses aggregates as strings/numbers", () => {
     const o = parseOverview(fxOverviewActive as unknown as Record<string, unknown>);
-    expect(o.declared_liquidity).toBe("5000");
+    expect(o.declared_capacity).toBe("5000");
     expect(o.active_offers).toBe(2);
     expect(o.operational_status).toBe("ACTIVE");
   });
@@ -96,7 +96,7 @@ describe("DTO parsing", () => {
 
   it("missing fields default safely (no crash, zeros for money)", () => {
     const o = parseOverview({});
-    expect(o.declared_liquidity).toBe("0");
+    expect(o.declared_capacity).toBe("0");
     expect(o.operational_status).toBe("IDLE");
     const ob = parseObligation({});
     expect(ob.payout_amount).toBe("0");

@@ -67,7 +67,7 @@ export const fxCase: OperatorCaseContext = {
     customer_restored: false,
     outcome: "IN_PROGRESS",
   },
-  liquidity: { matched_offer_ref: "OFR-1", lock_present: true, lock_consumed: false, lock_released: false, handover_prohibits_release: true },
+  liquidity: { matched_position_ref: "POS-1", lock_present: true, lock_consumed: false, lock_released: false, handover_prohibits_release: true },
   participant_actions: { accepted_at: "2026-07-25T09:10:00Z", rejected_at: null, rejection_reason: null, credential_verified_at: "2026-07-25T09:20:00Z", handover_confirmed_at: "2026-07-25T09:25:00Z", participant_dispute_reason: null },
   credential_evidence: { issued: true, verified: true, verified_at: "2026-07-25T09:20:00Z", single_use: true, expired: false },
   handover_evidence: { exists: true, confirmed_at: "2026-07-25T09:25:00Z", amount_binding: "100" },
