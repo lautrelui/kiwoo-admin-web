@@ -26,6 +26,9 @@ const NAV: NavItem[] = [
   { label: "Transactions", to: "/transactions", icon: "⇄" },
   { label: "Audit Logs", to: "/audit", icon: "▤", roles: ["ADMIN", "SUPER_ADMIN", "COMPLIANCE"] },
   { label: "Settings", to: "/settings", icon: "⚙" },
+  // R2 — Platform Settings › Wallet Application. Backend enforces AdminGuard;
+  // these roles gate the nav UX.
+  { label: "Wallet App Updates", to: "/settings/wallet/application-updates", icon: "⬆", section: "Platform Settings", roles: ["ADMIN", "SUPER_ADMIN"] },
   // Sprint 13 Task 126.5 — Kiwoo Operations Center: the operator console
   // that turns everything the Intelligence Platform emits into a pane
   // of glass. Read-only surface — no business logic lives here.
