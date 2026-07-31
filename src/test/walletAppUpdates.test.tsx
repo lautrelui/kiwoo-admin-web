@@ -118,6 +118,55 @@ describe("WalletAppUpdates settings page", () => {
     );
   });
 
+  it("enabling requires both version and build (rejects build-only)", async () => {
+    getConfig.mockResolvedValue(fx({ latest_version: "1.4.0", latest_build_number: 34 }));
+    renderPage();
+    const version = await screen.findByLabelText("Latest public version");
+    await userEvent.clear(version); // enabled but version now empty
+    await userEvent.click(saveBtn());
+    expect(await screen.findByText(/required when update checks are enabled/i)).toBeInTheDocument();
+    expect(saveConfig).not.toHaveBeenCalled();
+  });
+
+  it("publishing a different version requires a greater build", async () => {
+    getConfig.mockResolvedValue(fx({ latest_version: "1.4.0", latest_build_number: 34 }));
+    renderPage();
+    const version = await screen.findByLabelText("Latest public version");
+    await userEvent.clear(version);
+    await userEvent.type(version, "1.5.0"); // new version, build stays 34
+    await userEvent.click(saveBtn());
+    expect(await screen.findByText(/already published for/i)).toBeInTheDocument();
+    expect(saveConfig).not.toHaveBeenCalled();
+  });
+
+  it("rejects a lower build than the published one", async () => {
+    getConfig.mockResolvedValue(fx({ latest_version: "1.4.0", latest_build_number: 34 }));
+    renderPage();
+    const build = await screen.findByLabelText("Latest build number");
+    await userEvent.clear(build);
+    await userEvent.type(build, "33");
+    await userEvent.click(saveBtn());
+    expect(await screen.findByText(/cannot be lower than the published build/i)).toBeInTheDocument();
+    expect(saveConfig).not.toHaveBeenCalled();
+  });
+
+  it("allows editing the same release metadata (URL correction)", async () => {
+    getConfig.mockResolvedValue(fx({ latest_version: "1.4.0", latest_build_number: 34 }));
+    renderPage();
+    const url = await screen.findByLabelText("Download / update URL");
+    await userEvent.clear(url);
+    await userEvent.type(url, "https://wallet.kiwoo.io/download?v=2");
+    await userEvent.click(saveBtn());
+    await waitFor(() => expect(saveConfig).toHaveBeenCalledTimes(1));
+    expect(saveConfig).toHaveBeenCalledWith(
+      expect.objectContaining({
+        latest_version: "1.4.0",
+        latest_build_number: 34,
+        download_url: "https://wallet.kiwoo.io/download?v=2",
+      }),
+    );
+  });
+
   it("is RBAC-gated: a non-admin is redirected away", async () => {
     vi.spyOn(AuthContext, "useAuth").mockReturnValue({
       hasRole: () => false,

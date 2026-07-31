@@ -6,6 +6,7 @@ import { FormInput, FormTextarea } from "@/components/ui/FormInput";
 import { apiErrorMessage } from "@/lib/api";
 import { walletUpdateService } from "@/services/walletUpdateService";
 import { DEFAULT_DOWNLOAD_URL } from "@/types/walletUpdate";
+import type { WalletUpdateConfig } from "@/types/walletUpdate";
 
 interface FormState {
   update_enabled: boolean;
@@ -37,7 +38,11 @@ function isSafeHttpsUrl(raw: string): boolean {
 
 const SEMVER = /^\d+\.\d+\.\d+([-+][0-9A-Za-z.-]+)?$/;
 
-function validate(f: FormState): Record<string, string> {
+/**
+ * Mirrors the backend's config-consistency rules (backend stays authoritative):
+ * pair-required when enabled, and a monotonic published build number.
+ */
+function validate(f: FormState, baseline: WalletUpdateConfig | null): Record<string, string> {
   const e: Record<string, string> = {};
 
   const version = f.latest_version.trim();
@@ -46,10 +51,13 @@ function validate(f: FormState): Record<string, string> {
   }
 
   const build = f.latest_build_number.trim();
+  let buildNum: number | null = null;
   if (build) {
     const n = Number(build);
     if (!Number.isInteger(n) || n <= 0) {
       e.latest_build_number = "Enter a positive whole number.";
+    } else {
+      buildNum = n;
     }
   }
 
@@ -65,9 +73,20 @@ function validate(f: FormState): Record<string, string> {
     e.published_at = "Enter a valid ISO-8601 date/time, or leave blank.";
   }
 
-  // A prompt must never be triggered from a half-configured row.
-  if (f.update_enabled && !version && !build) {
-    e.latest_version = "Set a version or build number before enabling update checks.";
+  // Pair required when enabled — never prompt from a half-configured row.
+  if (f.update_enabled) {
+    if (!version) e.latest_version = "Required when update checks are enabled.";
+    if (!build) e.latest_build_number = "Required when update checks are enabled.";
+  }
+
+  // Monotonic build vs the currently published config.
+  const prevBuild = baseline?.latest_build_number ?? null;
+  if (buildNum != null && prevBuild != null && !e.latest_build_number) {
+    if (buildNum < prevBuild) {
+      e.latest_build_number = `Cannot be lower than the published build (${prevBuild}).`;
+    } else if (buildNum === prevBuild && version !== (baseline?.latest_version ?? "")) {
+      e.latest_build_number = `Build ${prevBuild} is already published for ${baseline?.latest_version ?? "n/a"}; use a greater build to publish a different version.`;
+    }
   }
 
   return e;
@@ -75,6 +94,7 @@ function validate(f: FormState): Record<string, string> {
 
 export default function WalletAppUpdates() {
   const [form, setForm] = useState<FormState>(EMPTY);
+  const [baseline, setBaseline] = useState<WalletUpdateConfig | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -86,6 +106,7 @@ export default function WalletAppUpdates() {
     setBanner(null);
     try {
       const cfg = await walletUpdateService.getConfig();
+      setBaseline(cfg);
       if (cfg) {
         setForm({
           update_enabled: cfg.update_enabled,
@@ -115,7 +136,7 @@ export default function WalletAppUpdates() {
 
   async function save(e: FormEvent) {
     e.preventDefault();
-    const errs = validate(form);
+    const errs = validate(form, baseline);
     setErrors(errs);
     if (Object.keys(errs).length > 0) return;
 
