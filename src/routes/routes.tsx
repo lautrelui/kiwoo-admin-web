@@ -12,6 +12,7 @@ import Partners from "@/pages/Partners";
 import Transactions from "@/pages/Transactions";
 import AuditLogs from "@/pages/AuditLogs";
 import Settings from "@/pages/Settings";
+import WalletAppUpdates from "@/pages/settings/WalletAppUpdates";
 // Sprint 12.x — Connect Enterprise operator pages.
 import ConnectDiagnostics from "@/pages/ConnectDiagnostics";
 import ConnectConversation from "@/pages/ConnectConversation";
@@ -160,6 +161,14 @@ export function AppRoutes() {
         element={
           <ProtectedRoute>
             <Settings />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings/wallet/application-updates"
+        element={
+          <ProtectedRoute roles={["ADMIN", "SUPER_ADMIN"]}>
+            <WalletAppUpdates />
           </ProtectedRoute>
         }
       />
