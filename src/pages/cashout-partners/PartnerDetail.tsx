@@ -7,6 +7,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { apiErrorMessage } from "@/lib/api";
 import { formatDateTime } from "@/lib/utils";
 import { cashoutPartnerService as svc } from "@/services/cashoutPartnerService";
+import { AgentFloatPanel } from "@/components/cashout-partners/AgentFloatPanel";
 import type { PartnerDirectoryItem } from "@/types/cashoutPartner";
 
 export default function PartnerDetail() {
@@ -103,6 +104,8 @@ export default function PartnerDetail() {
               </CardBody>
             </Card>
           </div>
+
+          <AgentFloatPanel agentUserId={p.user_id} />
         </>
       ) : null}
     </AppLayout>
