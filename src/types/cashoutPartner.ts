@@ -77,6 +77,7 @@ export interface PartnerApplication {
    * require the participant/execution rails (dark today). Optional for back-compat with older payloads.
    */
   readiness?: PartnerReadiness;
+  directory?: PartnerDirectoryFacts;
   user: PartnerUser;
   compliance: PartnerCompliance;
 }
@@ -85,6 +86,17 @@ export interface PartnerReadiness {
   business_active: boolean;
   discoverable: boolean;
   executable: boolean;
+}
+
+/** Truthful facts about whether this agent actually appears in customer "Find an agent". */
+export interface PartnerDirectoryFacts {
+  cash_agent_approved: boolean; // may perform in-person QR cash-out
+  directory_enrolled: boolean; // has an ACTIVE liquidity position (the listing record)
+  online: boolean;
+  public_profile_complete: boolean;
+  service_point_configured: boolean;
+  appears_in_directory: boolean; // the real answer
+  blockers: string[]; // why it does NOT appear (empty when it does)
 }
 
 export interface PartnerStats {
