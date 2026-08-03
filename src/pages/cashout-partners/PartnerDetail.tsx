@@ -55,6 +55,32 @@ export default function PartnerDetail() {
               label="Available" hint="The partner's own declared open/closed preference (operational, not readiness)." />
           </div>
 
+          {/* Truthful "does this agent appear in customer Find-an-agent?" — approval ≠ listing. */}
+          {p.directory && (
+            <div className="mb-5 rounded-lg border border-ink-100 bg-white px-4 py-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xs uppercase tracking-wide text-ink-400">Appears in Find an agent</span>
+                <span className={"inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium " +
+                  (p.directory.appears_in_directory ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600")}>
+                  {p.directory.appears_in_directory ? "Yes" : "No"}
+                </span>
+              </div>
+              <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                <Fact ok={p.directory.cash_agent_approved} label="Cash agent approved" />
+                <Fact ok={p.directory.directory_enrolled} label="Directory enrolled" />
+                <Fact ok={p.directory.online} label="Online" />
+                <Fact ok={p.directory.public_profile_complete} label="Public profile" />
+                <Fact ok={p.directory.service_point_configured} label="Service point" />
+              </div>
+              {!p.directory.appears_in_directory && p.directory.blockers.length > 0 && (
+                <div className="mt-2 text-xs text-ink-500">
+                  Not listed because: {p.directory.blockers.map((b) => b.replace(/_/g, " ")).join(", ")}.
+                  {" "}(This agent can still do in-person QR cash-out.)
+                </div>
+              )}
+            </div>
+          )}
+
           {!p.stats.marketplace_activity && (
             <div className="mb-5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
               No Marketplace activity yet — execution is not enabled, so request/payout/dispute statistics are zero.
@@ -123,6 +149,16 @@ function F({ label, v, mono }: { label: string; v?: string | null; mono?: boolea
 
 /** P0 · One readiness fact with a Yes/No pill and an explanatory tooltip. `neutral` = an operational
  *  preference (Availability) rather than a readiness gate. */
+function Fact({ ok, label }: { ok: boolean; label: string }) {
+  return (
+    <span className={"inline-flex items-center gap-1 rounded-full px-2 py-0.5 " +
+      (ok ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500")}>
+      <span className={"h-1.5 w-1.5 rounded-full " + (ok ? "bg-emerald-500" : "bg-slate-400")} />
+      {label}
+    </span>
+  );
+}
+
 function ReadyFact({ ok, label, hint, neutral }: { ok: boolean; label: string; hint: string; neutral?: boolean }) {
   const onColor = neutral ? "bg-sky-50 text-sky-700" : "bg-emerald-50 text-emerald-700";
   const onDot = neutral ? "bg-sky-500" : "bg-emerald-500";

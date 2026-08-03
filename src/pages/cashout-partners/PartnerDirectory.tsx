@@ -75,7 +75,13 @@ export default function PartnerDirectory() {
                   title="Onboarding complete and approved to operate once the Marketplace rail is enabled." /> ) },
               { key: "discoverable", header: "Discoverable", render: (r) => (
                 <ReadyCell value={r.readiness?.discoverable ?? false}
-                  title="Can currently be considered by customer matching (participant rail on)." /> ) },
+                  title="Rail-level: participant rail on + business active. Does NOT mean the agent is listed — see 'In directory'." /> ) },
+              // The TRUTHFUL answer: does this agent actually appear in customer "Find an agent"?
+              { key: "in_directory", header: "In directory", render: (r) => (
+                <ReadyCell value={r.directory?.appears_in_directory ?? false}
+                  title={r.directory?.appears_in_directory
+                    ? "Appears in customer Find-an-agent now."
+                    : `Not listed. Blockers: ${(r.directory?.blockers ?? []).join(", ") || "—"}`} /> ) },
               { key: "executable", header: "Executable", render: (r) => (
                 <ReadyCell value={r.readiness?.executable ?? false}
                   title="A matched customer transaction can currently proceed through reservation and completion." /> ) },
