@@ -7,10 +7,9 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-  PieChart,
-  Pie,
+  BarChart,
+  Bar,
   Cell,
-  Legend,
 } from "recharts";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { StatCard } from "@/components/ui/StatCard";
@@ -143,24 +142,38 @@ export default function Dashboard() {
           title="By source"
           subtitle="Journals by source_type"
         >
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={sourceBreakdown}
-                dataKey="value"
-                nameKey="name"
-                innerRadius={50}
-                outerRadius={90}
-                paddingAngle={2}
-              >
-                {sourceBreakdown.map((_, i) => (
-                  <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                ))}
-              </Pie>
-              <Legend />
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+          {/* Horizontal bars (sorted desc) read far better than a pie for the
+              ~18 source_type categories — thin pie slices + a wrapping legend
+              overlapped the chart. Scrolls within the card when there are many. */}
+          <div className="h-full overflow-y-auto pr-1">
+            <div
+              style={{ height: Math.max(240, sourceBreakdown.length * 26) }}
+            >
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={sourceBreakdown}
+                  layout="vertical"
+                  margin={{ top: 4, right: 16, bottom: 4, left: 8 }}
+                >
+                  <CartesianGrid horizontal={false} strokeDasharray="3 3" />
+                  <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11 }} />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    width={168}
+                    interval={0}
+                    tick={{ fontSize: 11 }}
+                  />
+                  <Tooltip />
+                  <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={18}>
+                    {sourceBreakdown.map((_, i) => (
+                      <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </ChartCard>
       </div>
     </AppLayout>
